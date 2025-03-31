@@ -2,7 +2,7 @@
   "name": "leetcode-283-move-zeroes",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://cc11001100.github.io/fuck-algorithm/leetcode-283-move-zeroes",
+  "homepage": "https://fuck-algorithm.github.io/leetcode-283-move-zeroes/",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
