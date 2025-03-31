@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/fuck-algorithm/leetcode-283-move-zeroes/static/css/main.7c6b3dac.css",
-    "main.js": "/fuck-algorithm/leetcode-283-move-zeroes/static/js/main.b0a58a9f.js",
-    "static/js/453.0387a847.chunk.js": "/fuck-algorithm/leetcode-283-move-zeroes/static/js/453.0387a847.chunk.js",
-    "index.html": "/fuck-algorithm/leetcode-283-move-zeroes/index.html",
-    "main.7c6b3dac.css.map": "/fuck-algorithm/leetcode-283-move-zeroes/static/css/main.7c6b3dac.css.map",
-    "main.b0a58a9f.js.map": "/fuck-algorithm/leetcode-283-move-zeroes/static/js/main.b0a58a9f.js.map",
-    "453.0387a847.chunk.js.map": "/fuck-algorithm/leetcode-283-move-zeroes/static/js/453.0387a847.chunk.js.map"
+    "main.css": "/leetcode-283-move-zeroes/static/css/main.7c6b3dac.css",
+    "main.js": "/leetcode-283-move-zeroes/static/js/main.2fd8ad6d.js",
+    "static/js/453.0387a847.chunk.js": "/leetcode-283-move-zeroes/static/js/453.0387a847.chunk.js",
+    "index.html": "/leetcode-283-move-zeroes/index.html",
+    "main.7c6b3dac.css.map": "/leetcode-283-move-zeroes/static/css/main.7c6b3dac.css.map",
+    "main.2fd8ad6d.js.map": "/leetcode-283-move-zeroes/static/js/main.2fd8ad6d.js.map",
+    "453.0387a847.chunk.js.map": "/leetcode-283-move-zeroes/static/js/453.0387a847.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.7c6b3dac.css",
-    "static/js/main.b0a58a9f.js"
+    "static/js/main.2fd8ad6d.js"
   ]
 }
