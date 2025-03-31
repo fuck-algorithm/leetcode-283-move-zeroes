@@ -1,0 +1,138 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.App {
+  text-align: center;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 0 10px 0;
+  color: white;
+  overflow: auto;
+  width: 100%;
+  position: relative;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  html, body, #root {
+    overflow: auto;
+  }
+
+  .App-header {
+    padding: 0 0 5px 0;
+  }
+}
+
+.move-zeroes {
+  background-color: #3a3f4b;
+  padding: 30px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 600px;
+  margin-top: 20px;
+}
+
+.move-zeroes h2 {
+  margin-top: 0;
+  color: #61dafb;
+}
+
+.move-zeroes form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.move-zeroes form div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.move-zeroes input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  font-size: 16px;
+}
+
+.move-zeroes button {
+  background-color: #61dafb;
+  color: #282c34;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.move-zeroes button:hover {
+  background-color: #4fa9d5;
+}
+
+.result {
+  margin-top: 20px;
+  background-color: #4a5061;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.result h3 {
+  margin-top: 0;
+  color: #61dafb;
+}
+
+.result p {
+  font-family: monospace;
+  font-size: 18px;
+  background-color: #282c34;
+  padding: 10px;
+  border-radius: 5px;
+}

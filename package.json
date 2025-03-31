@@ -1,0 +1,52 @@
+{
+  "name": "leetcode-283-move-zeroes",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "https://cc11001100.github.io/fuck-algorithm/leetcode-283-move-zeroes",
+  "dependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.126",
+    "@types/react": "^19.0.12",
+    "@types/react-dom": "^19.0.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-scripts": "5.0.1",
+    "typescript": "^4.9.5",
+    "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.1.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "GIT_COMMITTER_NAME='cc11001100' GIT_COMMITTER_EMAIL='example@example.com' GIT_AUTHOR_NAME='cc11001100' GIT_AUTHOR_EMAIL='example@example.com' NODE_DEBUG=gh-pages gh-pages -d build -b gh-pages",
+    "deploy:local": "git config --local commit.gpgsign false && GIT_COMMITTER_NAME='cc11001100' GIT_COMMITTER_EMAIL='example@example.com' GIT_AUTHOR_NAME='cc11001100' GIT_AUTHOR_EMAIL='example@example.com' NODE_DEBUG=gh-pages gh-pages -d build -b gh-pages --no-push",
+    "deploy:nopgp": "./nopgp.sh"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

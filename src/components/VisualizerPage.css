@@ -1,0 +1,63 @@
+.visualizer-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 0 10px 15px;
+}
+
+.page-header {
+  padding: 2px 0;
+  text-align: center;
+  width: 100%;
+}
+
+.leetcode-link {
+  text-decoration: none;
+  color: inherit;
+  display: inline-block;
+}
+
+.page-header h1 {
+  font-size: 18px;
+  margin: 0;
+  color: #61dafb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .visualizer-page {
+    height: 100vh;
+    overflow: auto;
+  }
+  
+  .page-header h1 {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .visualizer-page {
+    padding: 5px;
+  }
+  
+  .page-header {
+    padding: 1px 0;
+  }
+} 

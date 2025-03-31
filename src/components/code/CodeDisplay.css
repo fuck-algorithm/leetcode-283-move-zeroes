@@ -1,0 +1,145 @@
+.code-section {
+  border: 1px solid #2d2d2d;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: #1e1e1e;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #2d2d2d;
+  border-bottom: 1px solid #3d3d3d;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 16px;
+  color: #e0e0e0;
+}
+
+.language-selector {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #3d3d3d;
+  background-color: #252525;
+  color: #e0e0e0;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.code-container {
+  display: flex;
+  overflow: auto;
+  flex-grow: 1;
+  font-family: 'Fira Code', 'Consolas', 'Monaco', 'Menlo', monospace;
+}
+
+.line-numbers {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  background-color: #252525;
+  user-select: none;
+  text-align: right;
+  min-width: 40px;
+}
+
+.line-number {
+  padding: 0 8px;
+  color: #6e6e6e;
+  font-size: 14px;
+  height: 20px;
+  line-height: 20px;
+}
+
+.line-number.highlighted {
+  background-color: rgba(80, 150, 255, 0.2);
+  color: #a0a0a0;
+}
+
+.algorithm-code {
+  flex-grow: 1;
+  margin: 0;
+  padding: 8px 0;
+  overflow: auto;
+  background-color: #1e1e1e;
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: pre;
+  tab-size: 2;
+  width: 100%;
+}
+
+.code-line {
+  padding: 0 12px;
+  height: 20px;
+  line-height: 20px;
+  color: #d4d4d4;
+  white-space: pre;
+  display: block;
+  text-align: left;
+}
+
+.code-line.highlighted {
+  background-color: rgba(80, 150, 255, 0.2);
+}
+
+.keyword {
+  color: #569cd6;
+}
+
+.builtin {
+  color: #4ec9b0;
+}
+
+.function {
+  color: #dcdcaa;
+}
+
+.string {
+  color: #ce9178;
+}
+
+.number {
+  color: #b5cea8;
+}
+
+.operator {
+  color: #d4d4d4;
+}
+
+.comment {
+  color: #6a9955;
+  white-space: pre;
+}
+
+.compact .code-container {
+  max-height: calc(100vh - 240px);
+}
+
+@media (max-height: 768px) {
+  .compact .code-container {
+    max-height: calc(100vh - 180px);
+  }
+  
+  .compact .algorithm-code {
+    font-size: 13px;
+  }
+}
+
+@media (max-height: 600px) {
+  .compact .code-container {
+    max-height: calc(100vh - 160px);
+  }
+  
+  .compact .algorithm-code {
+    font-size: 12px;
+  }
+} 
