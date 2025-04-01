@@ -207,7 +207,8 @@ export const applySwapAnimation = (
   // 第一个元素副本
   const clone1 = animationGroup.append("g")
     .attr("class", "element-clone")
-    .attr("transform", `translate(${x1}, 0)`);
+    .attr("transform", `translate(${x1}, 0)`)
+    .style("z-index", "10");
     
   clone1.append("rect")
     .attr("width", elementWidth)
@@ -220,7 +221,7 @@ export const applySwapAnimation = (
     .attr("stroke-width", 1.5)
     .style("opacity", 1);
     
-  clone1.append("text")
+  const text1 = clone1.append("text")
     .attr("class", "value-text")
     .attr("x", elementWidth / 2)
     .attr("y", elementHeight / 2)
@@ -230,12 +231,14 @@ export const applySwapAnimation = (
     .attr("font-weight", "bold")
     .attr("font-size", "16px")
     .style("opacity", 1)
+    .style("pointer-events", "none")
     .text(val1);
   
   // 第二个元素副本
   const clone2 = animationGroup.append("g")
     .attr("class", "element-clone")
-    .attr("transform", `translate(${x2}, 0)`);
+    .attr("transform", `translate(${x2}, 0)`)
+    .style("z-index", "10");
     
   clone2.append("rect")
     .attr("width", elementWidth)
@@ -248,9 +251,40 @@ export const applySwapAnimation = (
     .attr("stroke-width", 1.5)
     .style("opacity", 1);
     
-  clone2.append("text")
+  const text2 = clone2.append("text")
     .attr("class", "value-text")
     .attr("x", elementWidth / 2)
+    .attr("y", elementHeight / 2)
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "middle")
+    .attr("fill", textColor2)
+    .attr("font-weight", "bold")
+    .attr("font-size", "16px")
+    .style("opacity", 1)
+    .style("pointer-events", "none")
+    .text(val2);
+
+  // 创建文本副本组（确保文本始终在最上层）
+  const textGroup = arrayGroup.append("g")
+    .attr("class", "text-group")
+    .style("pointer-events", "none");
+
+  // 复制文本到最上层
+  const topText1 = textGroup.append("text")
+    .attr("class", "value-text-top")
+    .attr("x", x1 + elementWidth / 2)
+    .attr("y", elementHeight / 2)
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "middle")
+    .attr("fill", textColor1)
+    .attr("font-weight", "bold")
+    .attr("font-size", "16px")
+    .style("opacity", 1)
+    .text(val1);
+
+  const topText2 = textGroup.append("text")
+    .attr("class", "value-text-top")
+    .attr("x", x2 + elementWidth / 2)
     .attr("y", elementHeight / 2)
     .attr("text-anchor", "middle")
     .attr("dominant-baseline", "middle")
@@ -280,6 +314,20 @@ export const applySwapAnimation = (
       };
     })
     .ease(d3.easeCubicInOut);
+
+  // 第一个文本动画
+  topText1.transition()
+    .duration(duration)
+    .attrTween("transform", function() {
+      return function(t: number) {
+        const startX = x1 + elementWidth/2;
+        const endX = x2 + elementWidth/2;
+        const currentX = d3.interpolate(startX, endX)(t);
+        const currentY = elementHeight/2 - 30 * Math.sin(t * Math.PI);
+        return `translate(${currentX - (x1 + elementWidth/2)}, ${currentY - elementHeight/2})`;
+      };
+    })
+    .ease(d3.easeCubicInOut);
   
   // 第二个元素动画
   clone2.transition()
@@ -291,6 +339,20 @@ export const applySwapAnimation = (
         const currentX = d3.interpolate(startX, endX)(t);
         const currentY = elementHeight/2 + 30 * Math.sin(t * Math.PI);
         return `translate(${currentX - elementWidth/2}, ${currentY - elementHeight/2})`;
+      };
+    })
+    .ease(d3.easeCubicInOut);
+
+  // 第二个文本动画
+  topText2.transition()
+    .duration(duration)
+    .attrTween("transform", function() {
+      return function(t: number) {
+        const startX = x2 + elementWidth/2;
+        const endX = x1 + elementWidth/2;
+        const currentX = d3.interpolate(startX, endX)(t);
+        const currentY = elementHeight/2 + 30 * Math.sin(t * Math.PI);
+        return `translate(${currentX - (x2 + elementWidth/2)}, ${currentY - elementHeight/2})`;
       };
     })
     .ease(d3.easeCubicInOut)
@@ -329,6 +391,7 @@ export const applySwapAnimation = (
       // 清理
       pathGroup.remove();
       animationGroup.remove();
+      textGroup.remove();
       defs.remove();
       
       // 调试信息
