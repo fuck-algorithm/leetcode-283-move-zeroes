@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/leetcode-283-move-zeroes/static/css/main.7c6b3dac.css",
-    "main.js": "/leetcode-283-move-zeroes/static/js/main.2fd8ad6d.js",
+    "main.css": "/leetcode-283-move-zeroes/static/css/main.86366039.css",
+    "main.js": "/leetcode-283-move-zeroes/static/js/main.d9bc2a47.js",
     "static/js/453.0387a847.chunk.js": "/leetcode-283-move-zeroes/static/js/453.0387a847.chunk.js",
     "index.html": "/leetcode-283-move-zeroes/index.html",
-    "main.7c6b3dac.css.map": "/leetcode-283-move-zeroes/static/css/main.7c6b3dac.css.map",
-    "main.2fd8ad6d.js.map": "/leetcode-283-move-zeroes/static/js/main.2fd8ad6d.js.map",
+    "main.86366039.css.map": "/leetcode-283-move-zeroes/static/css/main.86366039.css.map",
+    "main.d9bc2a47.js.map": "/leetcode-283-move-zeroes/static/js/main.d9bc2a47.js.map",
     "453.0387a847.chunk.js.map": "/leetcode-283-move-zeroes/static/js/453.0387a847.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.7c6b3dac.css",
-    "static/js/main.2fd8ad6d.js"
+    "static/css/main.86366039.css",
+    "static/js/main.d9bc2a47.js"
   ]
 }
