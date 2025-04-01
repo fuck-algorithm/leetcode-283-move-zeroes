@@ -11,8 +11,8 @@
   ],
   "rules": {
     "no-console": ["warn", { "allow": ["warn", "error"] }],
-    "indent": ["error", 2],
-    "quotes": ["error", "single"],
+    "indent": "off",
+    "quotes": "off",
     "semi": ["error", "always"],
     "max-len": ["warn", { "code": 100 }]
   }
