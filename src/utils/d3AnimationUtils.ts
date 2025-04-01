@@ -103,105 +103,11 @@ export const applySwapAnimation = (
   const animationGroup = arrayGroup.append("g")
     .attr("class", "animation-group");
   
-  // 添加轨迹路径 - 使路径可见增强交换体验
-  const path1 = animationGroup.append("path")
-    .attr("d", () => {
-      const curve = d3.path();
-      curve.moveTo(x1 + elementWidth/2, elementHeight/2);
-      curve.bezierCurveTo(
-        x1 + elementWidth/2, -30, 
-        x2 + elementWidth/2, -30, 
-        x2 + elementWidth/2, elementHeight/2
-      );
-      return curve.toString();
-    })
-    .attr("fill", "none")
-    .attr("stroke", "#4caf50")
-    .attr("stroke-width", 2)
-    .attr("stroke-dasharray", "5,3")
-    .attr("opacity", 0)
-    .transition()
-    .duration(200)
-    .attr("opacity", 0.6);
-    
-  const path2 = animationGroup.append("path")
-    .attr("d", () => {
-      const curve = d3.path();
-      curve.moveTo(x2 + elementWidth/2, elementHeight/2);
-      curve.bezierCurveTo(
-        x2 + elementWidth/2, elementHeight + 30, 
-        x1 + elementWidth/2, elementHeight + 30, 
-        x1 + elementWidth/2, elementHeight/2
-      );
-      return curve.toString();
-    })
-    .attr("fill", "none")
-    .attr("stroke", "#f44336")
-    .attr("stroke-width", 2)
-    .attr("stroke-dasharray", "5,3")
-    .attr("opacity", 0)
-    .transition()
-    .duration(200)
-    .attr("opacity", 0.6);
-  
-  // 创建第一个移动元素的副本 - 增加阴影和发光效果
-  const animElement1 = animationGroup.append("g")
-    .attr("class", "anim-element")
-    .attr("transform", `translate(${x1}, 0)`);
-  
-  // 添加阴影效果
-  animElement1.append("rect")
-    .attr("width", elementWidth)
-    .attr("height", elementWidth)
-    .attr("rx", 5)
-    .attr("ry", 5)
-    .attr("fill", element1.select("rect").attr("fill") || "#4caf50")
-    .attr("filter", "url(#glow-effect)")
-    .attr("stroke", "#282c34")
-    .attr("stroke-width", 1)
-    .attr("opacity", 0.95);
-  
-  // 添加第一个元素的文本
-  animElement1.append("text")
-    .attr("x", elementWidth / 2)
-    .attr("y", elementWidth / 2)
-    .attr("text-anchor", "middle")
-    .attr("dominant-baseline", "middle")
-    .attr("fill", "#282c34")
-    .attr("font-weight", "bold")
-    .text(val1);
-  
-  // 创建第二个移动元素的副本
-  const animElement2 = animationGroup.append("g")
-    .attr("class", "anim-element")
-    .attr("transform", `translate(${x2}, 0)`);
-  
-  // 添加阴影效果
-  animElement2.append("rect")
-    .attr("width", elementWidth)
-    .attr("height", elementWidth)
-    .attr("rx", 5)
-    .attr("ry", 5)
-    .attr("fill", element2.select("rect").attr("fill") || "#f44336")
-    .attr("filter", "url(#glow-effect)")
-    .attr("stroke", "#282c34")
-    .attr("stroke-width", 1)
-    .attr("opacity", 0.95);
-  
-  // 添加第二个元素的文本
-  animElement2.append("text")
-    .attr("x", elementWidth / 2)
-    .attr("y", elementWidth / 2)
-    .attr("text-anchor", "middle")
-    .attr("dominant-baseline", "middle")
-    .attr("fill", "#282c34")
-    .attr("font-weight", "bold")
-    .text(val2);
-  
   // 添加发光滤镜
+  const filterId = "glow-effect-" + Date.now(); // 创建唯一ID避免冲突
   const defs = arrayGroup.append("defs");
   defs.append("filter")
-    .attr("id", "glow-effect")
+    .attr("id", filterId)
     .attr("x", "-30%")
     .attr("y", "-30%")
     .attr("width", "160%")
@@ -217,154 +123,149 @@ export const applySwapAnimation = (
       <feBlend in="SourceGraphic" in2="glow" mode="normal" />
     `);
   
-  // 添加运动轨迹指示 - 粒子效果
-  const addParticles = (startX: number, endX: number, upwards: boolean) => {
-    const particleCount = 15;
-    const particleGroup = animationGroup.append("g").attr("class", "particles");
-    
-    for (let i = 0; i < particleCount; i++) {
-      const delay = Math.random() * 400;
-      const duration = 600 + Math.random() * 400;
-      const startPos = startX + elementWidth/2;
-      const endPos = endX + elementWidth/2;
-      
-      particleGroup.append("circle")
-        .attr("cx", startPos)
-        .attr("cy", elementHeight/2)
-        .attr("r", 1 + Math.random() * 2)
-        .attr("fill", upwards ? "#4caf50" : "#f44336")
-        .attr("opacity", 0)
-        .transition()
-        .delay(delay)
-        .duration(duration)
-        .attr("opacity", 0.7)
-        .attrTween("cx", function() {
-          return function(t: number) {
-            // 转为字符串类型以解决类型错误
-            return `${startPos + (endPos - startPos) * t}`;
-          };
-        })
-        .attrTween("cy", function() {
-          return function(t: number) {
-            const amplitude = 30 + Math.random() * 10;
-            const yOffset = upwards ? -amplitude : amplitude;
-            // 转为字符串类型以解决类型错误
-            return `${elementHeight/2 + Math.sin(Math.PI * t) * yOffset}`;
-          };
-        })
-        .transition()
-        .duration(200)
-        .attr("opacity", 0)
-        .remove();
-    }
-  };
-  
-  // 添加粒子效果
-  addParticles(x1, x2, true);  // 第一个元素向上移动的粒子
-  addParticles(x2, x1, false); // 第二个元素向下移动的粒子
-  
-  // 隐藏原始元素 (不完全隐藏，只是降低透明度)
+  // 隐藏原始元素
   element1.style("opacity", 0.3);
   element2.style("opacity", 0.3);
   
-  // 应用交换动画 - 添加缓动效果和旋转
-  animElement1.transition()
-    .duration(800)
-    .ease(d3.easeCubicInOut)
-    .attrTween("transform", function() {
-      return function(t: number) {
-        const y = Math.sin(Math.PI * t) * 40; // 增加弧度
-        const x = x1 + (x2 - x1) * t;
-        const rotate = 180 * Math.sin(Math.PI * t * 0.5); // 添加旋转
-        return `translate(${x}, ${-y}) rotate(${rotate}, ${elementWidth/2}, ${elementWidth/2})`;
-      };
-    });
+  // 创建第一个移动元素的副本
+  const animElement1 = animationGroup.append("g")
+    .attr("class", "anim-element")
+    .attr("transform", `translate(${x1}, 0)`);
   
-  // 存储一个动画完成标记
-  let animationComplete = false;
+  animElement1.append("rect")
+    .attr("width", elementWidth)
+    .attr("height", elementWidth)
+    .attr("rx", 5)
+    .attr("ry", 5)
+    .attr("fill", element1.select("rect").attr("fill") || "#4caf50")
+    .attr("filter", `url(#${filterId})`)
+    .attr("stroke", "#282c34")
+    .attr("stroke-width", 1);
   
-  animElement2.transition()
-    .duration(800)
-    .ease(d3.easeCubicInOut)
-    .attrTween("transform", function() {
-      return function(t: number) {
-        const y = Math.sin(Math.PI * t) * 40; // 增加弧度
-        const x = x2 + (x1 - x2) * t;
-        const rotate = -180 * Math.sin(Math.PI * t * 0.5); // 添加旋转
-        return `translate(${x}, ${y}) rotate(${rotate}, ${elementWidth/2}, ${elementWidth/2})`;
-      };
-    })
-    .on("end", function() {
-      if (animationComplete) return; // 避免重复执行
-      animationComplete = true;
-      
-      // 路径淡出
-      path1.transition().duration(200).attr("opacity", 0);
-      path2.transition().duration(200).attr("opacity", 0);
-      
-      // 添加成功指示动画
-      const circle1 = arrayGroup.append("circle")
-        .attr("cx", x1 + elementWidth/2)
-        .attr("cy", elementHeight/2)
-        .attr("r", elementWidth/2)
-        .attr("fill", "#f44336")
-        .attr("opacity", 0.7);
-      
-      circle1.transition()
-        .duration(400)
-        .attr("r", elementWidth * 1.5)
-        .attr("opacity", 0)
-        .on("end", function() {
-          circle1.remove();
-        });
+  animElement1.append("text")
+    .attr("x", elementWidth / 2)
+    .attr("y", elementWidth / 2)
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "middle")
+    .attr("fill", "#282c34")
+    .attr("font-weight", "bold")
+    .text(val1);
+  
+  // 创建第二个移动元素的副本
+  const animElement2 = animationGroup.append("g")
+    .attr("class", "anim-element")
+    .attr("transform", `translate(${x2}, 0)`);
+  
+  animElement2.append("rect")
+    .attr("width", elementWidth)
+    .attr("height", elementWidth)
+    .attr("rx", 5)
+    .attr("ry", 5)
+    .attr("fill", element2.select("rect").attr("fill") || "#f44336")
+    .attr("filter", `url(#${filterId})`)
+    .attr("stroke", "#282c34")
+    .attr("stroke-width", 1);
+  
+  animElement2.append("text")
+    .attr("x", elementWidth / 2)
+    .attr("y", elementWidth / 2)
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "middle")
+    .attr("fill", "#282c34")
+    .attr("font-weight", "bold")
+    .text(val2);
+  
+  // 执行单个动画，不嵌套transition
+  const duration = 800;
+  
+  // 第一个元素动画
+  const transitionFirst = animElement1.transition()
+    .duration(duration)
+    .ease(d3.easeCubicInOut);
+  
+  transitionFirst.attrTween("transform", function() {
+    return function(t: number) {
+      const y = Math.sin(Math.PI * t) * -40; // 负值表示向上运动
+      const x = x1 + (x2 - x1) * t;
+      const rotate = 180 * Math.sin(Math.PI * t * 0.5);
+      return `translate(${x}, ${y}) rotate(${rotate}, ${elementWidth/2}, ${elementWidth/2})`;
+    };
+  });
+  
+  // 第二个元素动画
+  const transitionSecond = animElement2.transition()
+    .duration(duration)
+    .ease(d3.easeCubicInOut);
+  
+  transitionSecond.attrTween("transform", function() {
+    return function(t: number) {
+      const y = Math.sin(Math.PI * t) * 40; // 正值表示向下运动
+      const x = x2 + (x1 - x2) * t;
+      const rotate = -180 * Math.sin(Math.PI * t * 0.5);
+      return `translate(${x}, ${y}) rotate(${rotate}, ${elementWidth/2}, ${elementWidth/2})`;
+    };
+  });
+  
+  // 在动画完成后更新元素位置并清理
+  transitionSecond.on("end", function() {
+    // 恢复原始元素，更新位置
+    element1.attr("transform", `translate(${x2}, 0)`)
+           .style("opacity", 1);
+    
+    element2.attr("transform", `translate(${x1}, 0)`)
+           .style("opacity", 1);
+    
+    // 显示完成效果
+    const finishEffect = arrayGroup.append("g").attr("class", "finish-effect");
+    
+    // 第一个位置的效果
+    finishEffect.append("circle")
+      .attr("cx", x1 + elementWidth/2)
+      .attr("cy", elementHeight/2)
+      .attr("r", elementWidth/2)
+      .attr("fill", "#f44336")
+      .attr("opacity", 0.7)
+      .transition()
+      .duration(400)
+      .attr("r", elementWidth)
+      .attr("opacity", 0)
+      .remove();
+    
+    // 第二个位置的效果
+    finishEffect.append("circle")
+      .attr("cx", x2 + elementWidth/2)
+      .attr("cy", elementHeight/2)
+      .attr("r", elementWidth/2)
+      .attr("fill", "#4caf50")
+      .attr("opacity", 0.7)
+      .transition()
+      .duration(400)
+      .attr("r", elementWidth)
+      .attr("opacity", 0)
+      .on("end", function() {
+        // 动画完成后，执行一些放大缩小的效果
+        element1.select("rect")
+          .transition()
+          .duration(300)
+          .attr("transform", "scale(1.1)")
+          .transition()
+          .duration(300)
+          .attr("transform", "scale(1)");
         
-      const circle2 = arrayGroup.append("circle")
-        .attr("cx", x2 + elementWidth/2)
-        .attr("cy", elementHeight/2)
-        .attr("r", elementWidth/2)
-        .attr("fill", "#4caf50")
-        .attr("opacity", 0.7);
-      
-      circle2.transition()
-        .duration(400)
-        .attr("r", elementWidth * 1.5)
-        .attr("opacity", 0)
-        .on("end", function() {
-          circle2.remove();
-        });
-      
-      // 先更新元素位置
-      element1.attr("transform", `translate(${x2}, 0)`)
-              .style("opacity", 1);
-      
-      element2.attr("transform", `translate(${x1}, 0)`)
-              .style("opacity", 1);
-      
-      // 再进行放大缩小动画
-      const rect1 = element1.select("rect")
-        .attr("transform", "scale(1)");
-      
-      rect1.transition()
-        .duration(300)
-        .attr("transform", "scale(1.1)")
-        .transition()
-        .duration(300)
-        .attr("transform", "scale(1)");
-      
-      const rect2 = element2.select("rect")
-        .attr("transform", "scale(1)");
-      
-      rect2.transition()
-        .duration(300)
-        .attr("transform", "scale(1.1)")
-        .transition()
-        .duration(300)
-        .attr("transform", "scale(1)")
-        .on("end", function() {
-          // 最后移除动画组
-          animationGroup.remove();
-        });
-    });
+        element2.select("rect")
+          .transition()
+          .duration(300)
+          .attr("transform", "scale(1.1)")
+          .transition()
+          .duration(300)
+          .attr("transform", "scale(1)");
+        
+        // 清理所有临时元素
+        animationGroup.remove();
+        finishEffect.remove();
+        defs.remove();
+      });
+  });
 };
 
 /**
