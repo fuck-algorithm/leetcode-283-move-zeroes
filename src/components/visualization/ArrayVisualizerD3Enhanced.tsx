@@ -96,7 +96,8 @@ const ArrayVisualizerD3Enhanced: React.FC<ArrayVisualizerEnhancedProps> = ({ ste
           newIdx2, 
           elementWidth, 
           elementPadding,
-          arrayGroup
+          arrayGroup,
+          elementHeight
         );
       }
     }
