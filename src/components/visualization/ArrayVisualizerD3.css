@@ -3,7 +3,7 @@
   display: flex;
   justify-content: center;
   padding: 5px;
-  min-height: 120px;
+  min-height: 150px;
   overflow: visible;
   box-sizing: border-box;
 }
@@ -19,6 +19,16 @@ svg {
 
 .array-element text {
   pointer-events: none;
+}
+
+.index-label {
+  font-size: 12px;
+  fill: white;
+}
+
+.index-background {
+  fill: #333;
+  opacity: 0.7;
 }
 
 .zero-element rect {

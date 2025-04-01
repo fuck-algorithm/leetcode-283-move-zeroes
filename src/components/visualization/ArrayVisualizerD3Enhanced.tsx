@@ -31,9 +31,9 @@ const ArrayVisualizerD3Enhanced: React.FC<ArrayVisualizerEnhancedProps> = ({ ste
     svg.selectAll("*").remove();
     
     // 设置svg尺寸和布局参数
-    const margin = { top: 30, right: 20, bottom: 30, left: 20 };
+    const margin = { top: 30, right: 20, bottom: 45, left: 20 };
     const width = Math.min(window.innerWidth - 40, step.array.length * 60);
-    const height = 120;
+    const height = 140;
     
     svg.attr("width", width)
        .attr("height", height);

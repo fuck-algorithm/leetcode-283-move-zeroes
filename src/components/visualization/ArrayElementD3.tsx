@@ -90,6 +90,30 @@ export const renderArrayElements = (
     .attr("font-weight", "bold")
     .text(d => d.value);
   
+  // 添加下标标识
+  cells.append("text")
+    .attr("class", "index-label")
+    .attr("x", elementWidth / 2)
+    .attr("y", elementHeight + 20)
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "middle")
+    .attr("fill", "#aaa")
+    .attr("font-size", "12px")
+    .text(d => d.index);
+  
+  // 添加下标背景，提高可见性
+  cells.append("rect")
+    .attr("class", "index-background")
+    .attr("x", elementWidth / 2 - 10)
+    .attr("y", elementHeight + 14)
+    .attr("width", 20)
+    .attr("height", 16)
+    .attr("rx", 3)
+    .attr("ry", 3)
+    .attr("fill", "#282c34")
+    .attr("opacity", 0.7)
+    .lower(); // 将背景放到标签下面
+  
   return cells;
 };
 
