@@ -100,16 +100,31 @@ export const applySwapAnimation = (
   const x2 = idx2 * (elementWidth + elementPadding);
 
   // 创建箭头标记
-  const markerId = "arrow-" + Date.now();
+  const markerIdUp = "arrow-up-" + Date.now();
+  const markerIdDown = "arrow-down-" + Date.now();
   const defs = arrayGroup.append("defs");
   
+  // 上方箭头标记
   defs.append("marker")
-    .attr("id", markerId)
+    .attr("id", markerIdUp)
     .attr("viewBox", "0 -5 10 10")
-    .attr("refX", 5)
+    .attr("refX", 10)
     .attr("refY", 0)
-    .attr("markerWidth", 6)
-    .attr("markerHeight", 6)
+    .attr("markerWidth", 8)
+    .attr("markerHeight", 8)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,-5L10,0L0,5")
+    .attr("fill", "#ff5252");
+
+  // 下方箭头标记
+  defs.append("marker")
+    .attr("id", markerIdDown)
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 10)
+    .attr("refY", 0)
+    .attr("markerWidth", 8)
+    .attr("markerHeight", 8)
     .attr("orient", "auto")
     .append("path")
     .attr("d", "M0,-5L10,0L0,5")
@@ -144,7 +159,7 @@ export const applySwapAnimation = (
     .attr("stroke", "#ff5252")
     .attr("stroke-width", 2)
     .attr("stroke-dasharray", "5,3")
-    .attr("marker-end", `url(#${markerId})`)
+    .attr("marker-end", `url(#${markerIdUp})`)
     .attr("opacity", 0)
     .transition()
     .duration(300)
@@ -157,7 +172,7 @@ export const applySwapAnimation = (
     .attr("stroke", "#ff5252")
     .attr("stroke-width", 2)
     .attr("stroke-dasharray", "5,3")
-    .attr("marker-end", `url(#${markerId})`)
+    .attr("marker-end", `url(#${markerIdDown})`)
     .attr("opacity", 0)
     .transition()
     .duration(300)
