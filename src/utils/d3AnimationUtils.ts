@@ -280,6 +280,9 @@ export const applySwapAnimation = (
       };
     });
   
+  // 存储一个动画完成标记
+  let animationComplete = false;
+  
   animElement2.transition()
     .duration(800)
     .ease(d3.easeCubicInOut)
@@ -292,64 +295,75 @@ export const applySwapAnimation = (
       };
     })
     .on("end", function() {
+      if (animationComplete) return; // 避免重复执行
+      animationComplete = true;
+      
       // 路径淡出
       path1.transition().duration(200).attr("opacity", 0);
       path2.transition().duration(200).attr("opacity", 0);
       
       // 添加成功指示动画
-      arrayGroup.append("circle")
+      const circle1 = arrayGroup.append("circle")
         .attr("cx", x1 + elementWidth/2)
         .attr("cy", elementHeight/2)
         .attr("r", elementWidth/2)
         .attr("fill", "#f44336")
-        .attr("opacity", 0.7)
-        .transition()
+        .attr("opacity", 0.7);
+      
+      circle1.transition()
         .duration(400)
         .attr("r", elementWidth * 1.5)
         .attr("opacity", 0)
-        .remove();
+        .on("end", function() {
+          circle1.remove();
+        });
         
-      arrayGroup.append("circle")
+      const circle2 = arrayGroup.append("circle")
         .attr("cx", x2 + elementWidth/2)
         .attr("cy", elementHeight/2)
         .attr("r", elementWidth/2)
         .attr("fill", "#4caf50")
-        .attr("opacity", 0.7)
-        .transition()
+        .attr("opacity", 0.7);
+      
+      circle2.transition()
         .duration(400)
         .attr("r", elementWidth * 1.5)
         .attr("opacity", 0)
-        .remove();
+        .on("end", function() {
+          circle2.remove();
+        });
       
-      // 移除动画组并添加短暂延迟
-      setTimeout(() => {
-        animationGroup.remove();
-        
-        // 恢复并更新原始元素位置，添加强调动画
-        element1.transition()
-          .duration(300)
-          .style("opacity", 1)
-          .attr("transform", `translate(${x2}, 0)`)
-          .select("rect")
-          .transition()
-          .duration(300)
-          .attr("transform", "scale(1.1)")
-          .transition()
-          .duration(300)
-          .attr("transform", "scale(1)");
-          
-        element2.transition()
-          .duration(300)
-          .style("opacity", 1)
-          .attr("transform", `translate(${x1}, 0)`)
-          .select("rect")
-          .transition()
-          .duration(300)
-          .attr("transform", "scale(1.1)")
-          .transition()
-          .duration(300)
-          .attr("transform", "scale(1)");
-      }, 200);
+      // 先更新元素位置
+      element1.attr("transform", `translate(${x2}, 0)`)
+              .style("opacity", 1);
+      
+      element2.attr("transform", `translate(${x1}, 0)`)
+              .style("opacity", 1);
+      
+      // 再进行放大缩小动画
+      const rect1 = element1.select("rect")
+        .attr("transform", "scale(1)");
+      
+      rect1.transition()
+        .duration(300)
+        .attr("transform", "scale(1.1)")
+        .transition()
+        .duration(300)
+        .attr("transform", "scale(1)");
+      
+      const rect2 = element2.select("rect")
+        .attr("transform", "scale(1)");
+      
+      rect2.transition()
+        .duration(300)
+        .attr("transform", "scale(1.1)")
+        .transition()
+        .duration(300)
+        .attr("transform", "scale(1)")
+        .on("end", function() {
+          // 最后移除动画组
+          animationGroup.remove();
+        });
     });
 };
 
