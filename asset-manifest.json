@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/leetcode-283-move-zeroes/static/css/main.dbbc3af5.css",
-    "main.js": "/leetcode-283-move-zeroes/static/js/main.d5e224f4.js",
+    "main.js": "/leetcode-283-move-zeroes/static/js/main.aaa950c7.js",
     "static/js/453.0387a847.chunk.js": "/leetcode-283-move-zeroes/static/js/453.0387a847.chunk.js",
     "index.html": "/leetcode-283-move-zeroes/index.html",
     "main.dbbc3af5.css.map": "/leetcode-283-move-zeroes/static/css/main.dbbc3af5.css.map",
-    "main.d5e224f4.js.map": "/leetcode-283-move-zeroes/static/js/main.d5e224f4.js.map",
+    "main.aaa950c7.js.map": "/leetcode-283-move-zeroes/static/js/main.aaa950c7.js.map",
     "453.0387a847.chunk.js.map": "/leetcode-283-move-zeroes/static/js/453.0387a847.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.dbbc3af5.css",
-    "static/js/main.d5e224f4.js"
+    "static/js/main.aaa950c7.js"
   ]
 }
