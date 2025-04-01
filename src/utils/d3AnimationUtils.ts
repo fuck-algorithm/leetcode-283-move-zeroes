@@ -90,7 +90,7 @@ export const applySwapAnimation = (
   elementWidth: number,
   elementPadding: number,
   arrayGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
-  elementHeight: number = elementWidth // 添加参数，默认等于elementWidth
+  elementHeight: number = elementWidth
 ) => {
   // 根据索引获取元素
   const element1 = cells.filter(d => d.index === idx1);
@@ -110,14 +110,10 @@ export const applySwapAnimation = (
     .attr("height", "140%")
     .html(`
       <feGaussianBlur stdDeviation="2" result="blur" />
-      <feFlood flood-color="#ff5252" flood-opacity="0.3" result="color" />
+      <feFlood flood-color="#ff5252" flood-opacity="0.2" result="color" />
       <feComposite in="color" in2="blur" operator="in" result="glow" />
       <feBlend in="SourceGraphic" in2="glow" mode="normal" />
     `);
-  
-  // 备份元素原始位置和数据
-  const data1 = element1.datum();
-  const data2 = element2.datum();
   
   // 获取原始元素的颜色和文本样式
   const fill1 = element1.select("rect").attr("fill") || "#61dafb";
@@ -127,6 +123,23 @@ export const applySwapAnimation = (
   
   // 创建元素副本
   const animationGroup = arrayGroup.append("g").attr("class", "animation-group");
+  
+  // 创建路径
+  const path1 = d3.path();
+  path1.moveTo(x1 + elementWidth/2, elementHeight/2);
+  path1.bezierCurveTo(
+    x1 + elementWidth/2, elementHeight/2 - 30, // 向上移动
+    x2 + elementWidth/2, elementHeight/2 - 30, // 水平移动
+    x2 + elementWidth/2, elementHeight/2 // 向下移动
+  );
+  
+  const path2 = d3.path();
+  path2.moveTo(x2 + elementWidth/2, elementHeight/2);
+  path2.bezierCurveTo(
+    x2 + elementWidth/2, elementHeight/2 + 30, // 向下移动
+    x1 + elementWidth/2, elementHeight/2 + 30, // 水平移动
+    x1 + elementWidth/2, elementHeight/2 // 向上移动
+  );
   
   // 第一个元素副本
   const clone1 = animationGroup.append("g")
@@ -184,22 +197,38 @@ export const applySwapAnimation = (
   element1.style("opacity", 0);
   element2.style("opacity", 0);
   
-  // 执行单一动画
-  const duration = 600;
-  const halfDuration = duration / 2;
+  // 执行动画
+  const duration = 800;
   
-  // 同时移动两个克隆元素
+  // 第一个元素动画
   clone1.transition()
     .duration(duration)
-    .attr("transform", `translate(${x2}, 0)`)
-    .ease(d3.easeBackInOut);
-    
+    .attrTween("transform", function() {
+      return function(t: number) {
+        const startX = x1 + elementWidth/2;
+        const endX = x2 + elementWidth/2;
+        const currentX = d3.interpolate(startX, endX)(t);
+        const currentY = elementHeight/2 - 30 * Math.sin(t * Math.PI);
+        return `translate(${currentX - elementWidth/2}, ${currentY - elementHeight/2})`;
+      };
+    })
+    .ease(d3.easeCubicInOut);
+  
+  // 第二个元素动画
   clone2.transition()
     .duration(duration)
-    .attr("transform", `translate(${x1}, 0)`)
-    .ease(d3.easeBackInOut)
+    .attrTween("transform", function() {
+      return function(t: number) {
+        const startX = x2 + elementWidth/2;
+        const endX = x1 + elementWidth/2;
+        const currentX = d3.interpolate(startX, endX)(t);
+        const currentY = elementHeight/2 + 30 * Math.sin(t * Math.PI);
+        return `translate(${currentX - elementWidth/2}, ${currentY - elementHeight/2})`;
+      };
+    })
+    .ease(d3.easeCubicInOut)
     .on("end", function() {
-      // 更新数据：关键步骤
+      // 更新数据
       element1.datum(d => ({...d, index: idx2, x: x2}));
       element2.datum(d => ({...d, index: idx1, x: x1}));
       
@@ -216,25 +245,25 @@ export const applySwapAnimation = (
       // 添加高亮效果
       element1.select("rect")
         .transition()
-        .duration(250)
+        .duration(300)
         .attr("transform", "scale(1.1)")
         .transition()
-        .duration(250)
+        .duration(300)
         .attr("transform", "scale(1)");
       
       element2.select("rect")
         .transition()
-        .duration(250)
+        .duration(300)
         .attr("transform", "scale(1.1)")
         .transition()
-        .duration(250)
+        .duration(300)
         .attr("transform", "scale(1)");
       
       // 清理
       animationGroup.remove();
       defs.remove();
       
-      // 添加到控制台的调试信息
+      // 调试信息
       console.log('交换完成', {
         '元素1新位置': x2,
         '元素2新位置': x1,
