@@ -47,26 +47,6 @@ const ArrayVisualizerD3Enhanced: React.FC<ArrayVisualizerEnhancedProps> = ({ ste
     const arrayGroup = svg.append("g")
       .attr("transform", `translate(${margin.left}, ${margin.top})`);
     
-    // 创建数据对象并渲染数组元素
-    const elementData = createElementDataFromStep(step, elementWidth, elementPadding);
-    const cells = renderArrayElements(arrayGroup, elementData, elementWidth, elementHeight);
-    
-    // 处理交换开始阶段动画
-    if (step.animationPhase === 'swap-start' && prevStep) {
-      // 找到需要交换的两个元素索引
-      let swapIndices: number[] = [];
-      Object.entries(step.elementStates).forEach(([idx, state]) => {
-        if (state.swapping) {
-          swapIndices.push(parseInt(idx));
-        }
-      });
-      
-      if (swapIndices.length === 2) {
-        const [idx1, idx2] = swapIndices;
-        createSwapPaths(svg, arrayGroup, idx1, idx2, elementWidth, elementHeight, elementPadding);
-      }
-    }
-    
     // 处理交换结束阶段动画
     if (prevStep && step.animationPhase === 'swap-end') {
       // 找到需要交换的两个元素索引
@@ -78,22 +58,32 @@ const ArrayVisualizerD3Enhanced: React.FC<ArrayVisualizerEnhancedProps> = ({ ste
       });
       
       if (swapIndices.length === 2) {
+        // 使用上一步的数组创建元素数据
+        // 这样元素位置还在交换前的位置上，便于动画
+        const elementData = createElementDataFromStep(prevStep, elementWidth, elementPadding);
+        const cells = renderArrayElements(arrayGroup, elementData, elementWidth, elementHeight);
+        
         const [idx1, idx2] = swapIndices;
         const val1 = prevStep.array[idx1];
         const val2 = prevStep.array[idx2];
         
         // 获取元素在交换后的位置
-        // 注意：在实际渲染时，元素位置已经按照step.array的顺序排列了
-        // 但我们需要告诉动画函数原始索引和目标索引
         const newIdx1 = idx2; // 交换后的位置就是对方的索引
         const newIdx2 = idx1;
         
         console.log('交换动画:', {
           从值: val1, 到值: val2,
           从索引: idx1, 到索引: idx2,
-          新索引1: newIdx1, 新索引2: newIdx2
+          新索引1: newIdx1, 新索引2: newIdx2,
+          交换前元素顺序: prevStep.array,
+          交换后元素顺序: step.array
         });
         
+        // 添加指针（在动画之前）
+        addSlowPointer(cells, elementWidth);
+        addFastPointer(cells, elementWidth, elementHeight);
+        
+        // 应用交换动画
         applySwapAnimation(
           cells, 
           val1, 
@@ -108,22 +98,42 @@ const ArrayVisualizerD3Enhanced: React.FC<ArrayVisualizerEnhancedProps> = ({ ste
           elementHeight
         );
       }
+    } else {
+      // 正常渲染当前步骤的数组
+      const elementData = createElementDataFromStep(step, elementWidth, elementPadding);
+      const cells = renderArrayElements(arrayGroup, elementData, elementWidth, elementHeight);
+      
+      // 交换动画前的准备
+      if (step.animationPhase === 'swap-start' && prevStep) {
+        // 找到需要交换的两个元素索引
+        let swapIndices: number[] = [];
+        Object.entries(step.elementStates).forEach(([idx, state]) => {
+          if (state.swapping) {
+            swapIndices.push(parseInt(idx));
+          }
+        });
+        
+        if (swapIndices.length === 2) {
+          const [idx1, idx2] = swapIndices;
+          createSwapPaths(svg, arrayGroup, idx1, idx2, elementWidth, elementHeight, elementPadding);
+        }
+      }
+      
+      // 添加指针
+      addSlowPointer(cells, elementWidth);
+      addFastPointer(cells, elementWidth, elementHeight);
+      
+      // 应用其他动画效果
+      applyElementAnimation(cells, svg, step.animationPhase, elementWidth);
+      
+      // 添加脉冲动画效果
+      svg.selectAll(".pointer circle")
+        .append("animate")
+        .attr("attributeName", "r")
+        .attr("values", "10;12;10")
+        .attr("dur", "1s")
+        .attr("repeatCount", "indefinite");
     }
-    
-    // 添加指针
-    addSlowPointer(cells, elementWidth);
-    addFastPointer(cells, elementWidth, elementHeight);
-    
-    // 应用其他动画效果
-    applyElementAnimation(cells, svg, step.animationPhase, elementWidth);
-    
-    // 添加脉冲动画效果
-    svg.selectAll(".pointer circle")
-      .append("animate")
-      .attr("attributeName", "r")
-      .attr("values", "10;12;10")
-      .attr("dur", "1s")
-      .attr("repeatCount", "indefinite");
     
   }, [step, prevStep]);
 
