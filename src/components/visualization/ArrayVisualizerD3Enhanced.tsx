@@ -63,35 +63,142 @@ const ArrayVisualizerD3Enhanced: React.FC<ArrayVisualizerEnhancedProps> = ({ ste
       .attr("transform", d => `translate(${d.x}, ${d.y})`)
       .style("opacity", 1);
     
+    // 处理交换动画
+    if (step.animationPhase === 'swap-start' && prevStep) {
+      // 找到需要交换的两个元素索引
+      let swapIndices: number[] = [];
+      Object.entries(step.elementStates).forEach(([idx, state]) => {
+        if (state.swapping) {
+          swapIndices.push(parseInt(idx));
+        }
+      });
+      
+      if (swapIndices.length === 2) {
+        const [idx1, idx2] = swapIndices;
+        
+        // 计算元素的位置
+        const x1 = idx1 * (elementWidth + elementPadding);
+        const x2 = idx2 * (elementWidth + elementPadding);
+        
+        // 创建交换路径
+        const pathGroup = arrayGroup.append("g")
+          .attr("class", "swap-paths");
+        
+        // 绘制交换曲线
+        const curve1 = d3.path();
+        curve1.moveTo(x1 + elementWidth/2, elementHeight/2);
+        curve1.bezierCurveTo(
+          x1 + elementWidth/2, elementHeight + 20, 
+          x2 + elementWidth/2, elementHeight + 20, 
+          x2 + elementWidth/2, elementHeight/2
+        );
+        
+        const curve2 = d3.path();
+        curve2.moveTo(x2 + elementWidth/2, elementHeight/2);
+        curve2.bezierCurveTo(
+          x2 + elementWidth/2, -20, 
+          x1 + elementWidth/2, -20, 
+          x1 + elementWidth/2, elementHeight/2
+        );
+        
+        // 添加路径
+        pathGroup.append("path")
+          .attr("d", curve1.toString())
+          .attr("fill", "none")
+          .attr("stroke", "#ff5252")
+          .attr("stroke-width", 2)
+          .attr("stroke-dasharray", "5,3")
+          .attr("opacity", 0)
+          .transition()
+          .duration(300)
+          .attr("opacity", 0.7);
+        
+        pathGroup.append("path")
+          .attr("d", curve2.toString())
+          .attr("fill", "none")
+          .attr("stroke", "#ff5252")
+          .attr("stroke-width", 2)
+          .attr("stroke-dasharray", "5,3")
+          .attr("opacity", 0)
+          .transition()
+          .duration(300)
+          .attr("opacity", 0.7);
+        
+        // 箭头标记
+        svg.append("defs").selectAll("marker")
+          .data(["end"])
+          .enter().append("marker")
+          .attr("id", String)
+          .attr("viewBox", "0 -5 10 10")
+          .attr("refX", 5)
+          .attr("refY", 0)
+          .attr("markerWidth", 6)
+          .attr("markerHeight", 6)
+          .attr("orient", "auto")
+          .append("path")
+          .attr("d", "M0,-5L10,0L0,5")
+          .attr("fill", "#ff5252");
+      }
+    }
+    
     // 如果是交换状态且有上一步，应用交换动画
     if (prevStep && step.animationPhase === 'swap-end') {
-      const prevData = prevStep.array.map((value, index) => {
-        return {
-          value: value,
-          index: index,
-          x: index * (elementWidth + elementPadding)
-        };
+      // 找到需要交换的两个元素索引
+      let swapIndices: number[] = [];
+      Object.entries(prevStep.elementStates).forEach(([idx, state]) => {
+        if (state.swapping) {
+          swapIndices.push(parseInt(idx));
+        }
       });
       
-      // 创建映射以找到交换的元素
-      const valueToIndexMap: Record<number, number> = {};
-      step.array.forEach((value, index) => {
-        valueToIndexMap[value] = index;
-      });
-      
-      // 应用交换动画
-      cells.filter(d => d.state.swapping)
-        .transition()
-        .duration(500)
-        .attr("transform", d => {
-          // 找到该元素在上一步的位置
-          const prevIdx = prevData.findIndex(pd => pd.value === d.value);
-          const startX = prevIdx * (elementWidth + elementPadding);
-          return `translate(${startX}, ${d.y})`;
-        })
-        .transition()
-        .duration(500)
-        .attr("transform", d => `translate(${d.x}, ${d.y})`);
+      if (swapIndices.length === 2) {
+        const [idx1, idx2] = swapIndices;
+        const val1 = prevStep.array[idx1];
+        const val2 = prevStep.array[idx2];
+        
+        // 获取元素在交换后的位置
+        const newIdx1 = step.array.findIndex(v => v === val1);
+        const newIdx2 = step.array.findIndex(v => v === val2);
+        
+        // 计算元素的位置
+        const x1 = idx1 * (elementWidth + elementPadding);
+        const x2 = idx2 * (elementWidth + elementPadding);
+        const newX1 = newIdx1 * (elementWidth + elementPadding);
+        const newX2 = newIdx2 * (elementWidth + elementPadding);
+        
+        // 应用交换动画到相应元素
+        cells.filter(d => d.value === val1)
+          .attr("transform", `translate(${x1}, 0)`)
+          .transition()
+          .duration(600)
+          .attrTween("transform", function() {
+            return function(t) {
+              // 计算沿曲线的位置
+              const y = Math.sin(Math.PI * t) * 30; // 弧形路径
+              const x = x1 + (newX1 - x1) * t;
+              return `translate(${x}, ${-y})`;
+            };
+          })
+          .transition()
+          .duration(100)
+          .attr("transform", `translate(${newX1}, 0)`);
+        
+        cells.filter(d => d.value === val2)
+          .attr("transform", `translate(${x2}, 0)`)
+          .transition()
+          .duration(600)
+          .attrTween("transform", function() {
+            return function(t) {
+              // 计算沿曲线的位置
+              const y = Math.sin(Math.PI * t) * 30; // 弧形路径
+              const x = x2 + (newX2 - x2) * t;
+              return `translate(${x}, ${y})`;
+            };
+          })
+          .transition()
+          .duration(100)
+          .attr("transform", `translate(${newX2}, 0)`);
+      }
     }
     
     // 为每个元素添加矩形
@@ -207,7 +314,8 @@ const ArrayVisualizerD3Enhanced: React.FC<ArrayVisualizerEnhancedProps> = ({ ste
         .select("rect")
         .transition()
         .duration(300)
-        .attr("fill", "#ff5252");
+        .attr("fill", "#ff5252")
+        .attr("transform", "scale(1.1)");
     } else if (step.animationPhase === 'move') {
       // 指针移动动画
       svg.selectAll(".pointer.slow")

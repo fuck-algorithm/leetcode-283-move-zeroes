@@ -17,6 +17,10 @@ svg {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+.array-element text {
+  pointer-events: none;
+}
+
 .zero-element rect {
   fill: #777;
 }
@@ -24,6 +28,21 @@ svg {
 .swapping rect {
   fill: #ff5252;
   transform: scale(1.1);
+  filter: drop-shadow(0 0 3px rgba(255, 82, 82, 0.8));
+}
+
+.swap-paths path {
+  stroke-dashoffset: 0;
+  animation: dash 1s linear forwards;
+}
+
+@keyframes dash {
+  from {
+    stroke-dashoffset: 200;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 @keyframes pulse {
@@ -43,6 +62,41 @@ svg {
 
 .pointer circle {
   animation: pulse 1s infinite;
+}
+
+/* 动画相关样式 */
+.highlight-animation {
+  animation: highlight-pulse 0.6s ease-in-out;
+}
+
+@keyframes highlight-pulse {
+  0%, 100% { 
+    transform: scale(1); 
+    filter: brightness(100%);
+  }
+  50% { 
+    transform: scale(1.15); 
+    filter: brightness(120%);
+  }
+}
+
+.swap-animation {
+  animation: swap-effect 0.8s ease-in-out;
+}
+
+@keyframes swap-effect {
+  0% { 
+    transform: scale(1); 
+    filter: brightness(100%);
+  }
+  50% { 
+    transform: scale(1.2); 
+    filter: brightness(150%) drop-shadow(0 0 8px rgba(255, 82, 82, 0.8));
+  }
+  100% { 
+    transform: scale(1); 
+    filter: brightness(100%);
+  }
 }
 
 @media (max-width: 768px) {
