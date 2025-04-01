@@ -1,7 +1,7 @@
 .visualizer-controls {
   background-color: #2a2e3a;
   border-radius: 8px;
-  padding: 4px 6px;
+  padding: 8px 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   width: 100%;
   margin-bottom: 4px;
@@ -63,7 +63,7 @@
 .speed-and-presets {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 20px;
   flex-wrap: wrap;
 }
 
@@ -109,6 +109,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
+  justify-content: center;
 }
 
 .preset-button {
@@ -150,7 +151,7 @@
   .speed-and-presets {
     flex-direction: column;
     align-items: stretch;
-    gap: 5px;
+    gap: 10px;
   }
   
   .speed-control {
@@ -160,7 +161,7 @@
 
 @media (max-width: 480px) {
   .visualizer-controls {
-    padding: 3px 5px;
+    padding: 6px 8px;
   }
   
   .preset-buttons {

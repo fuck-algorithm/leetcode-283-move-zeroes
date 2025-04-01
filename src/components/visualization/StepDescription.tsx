@@ -1,14 +1,14 @@
 import React from 'react';
 import './StepDescription.css';
+import { AlgorithmStepD3 } from '../../utils/algorithmStepsD3';
 
 interface StepDescriptionProps {
-  action: 'init' | 'compare' | 'swap' | 'move' | 'complete';
-  description: string;
+  step: AlgorithmStepD3;
 }
 
-const StepDescription: React.FC<StepDescriptionProps> = ({ action, description }) => {
+const StepDescription: React.FC<StepDescriptionProps> = ({ step }) => {
   const getActionLabel = () => {
-    switch (action) {
+    switch (step.action) {
       case 'swap':
         return '交换元素';
       case 'compare':
@@ -27,9 +27,9 @@ const StepDescription: React.FC<StepDescriptionProps> = ({ action, description }
   return (
     <div className="step-explanation">
       <div className="current-action">
-        <span className={`action-tag ${action}`}>{getActionLabel()}</span>
+        <span className={`action-tag ${step.action}`}>{getActionLabel()}</span>
       </div>
-      <p className="description-text">{description}</p>
+      <p className="description-text">{step.message || ''}</p>
     </div>
   );
 };

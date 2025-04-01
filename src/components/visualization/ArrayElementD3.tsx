@@ -27,13 +27,14 @@ export const createElementDataFromStep = (
   elementPadding: number
 ): ElementData[] => {
   return step.array.map((value, index) => {
+    const elementData = step.elementData[index];
     return {
       value: value,
       index: index,
       isZero: value === 0,
       slowPointer: index === step.slow,
       fastPointer: index === step.fast,
-      state: step.elementStates[index] || {
+      state: elementData ? elementData.state : {
         highlighted: false,
         swapping: false,
         comparing: false
@@ -118,74 +119,85 @@ export const renderArrayElements = (
 };
 
 /**
- * 添加慢指针标记
+ * 添加慢指针
  */
 export const addSlowPointer = (
-  cells: d3.Selection<SVGGElement, ElementData, SVGGElement, unknown>,
-  elementWidth: number
-) => {
-  cells.filter(d => d.slowPointer)
-    .append("g")
-    .attr("class", "pointer slow")
-    .call(g => {
-      // 指针圆圈
-      g.append("circle")
-        .attr("cx", elementWidth / 2)
-        .attr("cy", -15)
-        .attr("r", 10)
-        .attr("fill", "#4caf50");
-      
-      // 指针标签
-      g.append("text")
-        .attr("x", elementWidth / 2)
-        .attr("y", -15)
-        .attr("text-anchor", "middle")
-        .attr("dominant-baseline", "middle")
-        .attr("fill", "white")
-        .attr("font-size", "10px")
-        .attr("font-weight", "bold")
-        .text("S");
-      
-      // 指针箭头
-      g.append("path")
-        .attr("d", `M${elementWidth/2 - 5},${-5} L${elementWidth/2},0 L${elementWidth/2 + 5},${-5}`)
-        .attr("fill", "#4caf50");
-    });
-};
-
-/**
- * 添加快指针标记
- */
-export const addFastPointer = (
-  cells: d3.Selection<SVGGElement, ElementData, SVGGElement, unknown>,
+  arrayGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
+  x: number,
   elementWidth: number,
   elementHeight: number
 ) => {
-  cells.filter(d => d.fastPointer)
-    .append("g")
+  const pointerGroup = arrayGroup.append("g")
+    .attr("class", "pointer slow")
+    .attr("transform", `translate(${x}, 0)`);
+
+  // 添加指针标签背景
+  pointerGroup.append("rect")
+    .attr("x", -40)
+    .attr("y", -50)
+    .attr("width", 80)
+    .attr("height", 24)
+    .attr("rx", 12)
+    .attr("ry", 12)
+    .attr("fill", "#4CAF50")
+    .attr("opacity", 0.9);
+
+  // 添加指针标签文本
+  pointerGroup.append("text")
+    .attr("x", 0)
+    .attr("y", -32)
+    .attr("text-anchor", "middle")
+    .attr("fill", "white")
+    .attr("font-size", "12px")
+    .attr("font-weight", "bold")
+    .text("Slow Pointer");
+
+  // 添加指针箭头
+  pointerGroup.append("path")
+    .attr("d", `M0,-26 L0,-10 L-5,-15 M0,-10 L5,-15`)
+    .attr("stroke", "#4CAF50")
+    .attr("stroke-width", 2)
+    .attr("fill", "none");
+};
+
+/**
+ * 添加快指针
+ */
+export const addFastPointer = (
+  arrayGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
+  x: number,
+  elementWidth: number,
+  elementHeight: number
+) => {
+  const pointerGroup = arrayGroup.append("g")
     .attr("class", "pointer fast")
-    .call(g => {
-      // 指针圆圈
-      g.append("circle")
-        .attr("cx", elementWidth / 2)
-        .attr("cy", elementHeight + 15)
-        .attr("r", 10)
-        .attr("fill", "#f44336");
-      
-      // 指针标签
-      g.append("text")
-        .attr("x", elementWidth / 2)
-        .attr("y", elementHeight + 15)
-        .attr("text-anchor", "middle")
-        .attr("dominant-baseline", "middle")
-        .attr("fill", "white")
-        .attr("font-size", "10px")
-        .attr("font-weight", "bold")
-        .text("F");
-      
-      // 指针箭头
-      g.append("path")
-        .attr("d", `M${elementWidth/2 - 5},${elementHeight + 5} L${elementWidth/2},${elementHeight} L${elementWidth/2 + 5},${elementHeight + 5}`)
-        .attr("fill", "#f44336");
-    });
+    .attr("transform", `translate(${x}, 0)`);
+
+  // 添加指针标签背景
+  pointerGroup.append("rect")
+    .attr("x", -40)
+    .attr("y", elementHeight + 26)
+    .attr("width", 80)
+    .attr("height", 24)
+    .attr("rx", 12)
+    .attr("ry", 12)
+    .attr("fill", "#FF5252")
+    .attr("opacity", 0.9);
+
+  // 添加指针标签文本
+  pointerGroup.append("text")
+    .attr("x", 0)
+    .attr("y", elementHeight + 44)
+    .attr("text-anchor", "middle")
+    .attr("fill", "white")
+    .attr("font-size", "12px")
+    .attr("font-weight", "bold")
+    .text("Fast Pointer");
+
+  // 添加指针箭头
+  pointerGroup.append("path")
+    .attr("d", `M0,${elementHeight + 26} L0,${elementHeight + 10} L-5,${elementHeight + 15} M0,${elementHeight + 10} L5,${elementHeight + 15}`)
+    .attr("stroke", "#FF5252")
+    .attr("stroke-width", 2)
+    .attr("fill", "none");
 }; 

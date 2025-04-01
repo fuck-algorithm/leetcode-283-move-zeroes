@@ -3,22 +3,24 @@ import './ControlButtons.css';
 
 interface ControlButtonsProps {
   isPlaying: boolean;
-  canGoBack: boolean;
-  canGoForward: boolean;
+  canStepForward: boolean;
+  canStepBackward: boolean;
+  onPlay: () => void;
+  onPause: () => void;
+  onStepForward: () => void;
+  onStepBackward: () => void;
   onReset: () => void;
-  onPrevious: () => void;
-  onPlayPause: () => void;
-  onNext: () => void;
 }
 
 const ControlButtons: React.FC<ControlButtonsProps> = ({
   isPlaying,
-  canGoBack,
-  canGoForward,
-  onReset,
-  onPrevious,
-  onPlayPause,
-  onNext
+  canStepForward,
+  canStepBackward,
+  onPlay,
+  onPause,
+  onStepForward,
+  onStepBackward,
+  onReset
 }) => {
   return (
     <div className="controls">
@@ -26,24 +28,24 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({
         <span className="button-icon">↺</span> 重置
       </button>
       <button 
-        onClick={onPrevious} 
-        disabled={!canGoBack}
+        onClick={onStepBackward} 
+        disabled={!canStepBackward}
         className="control-button prev"
       >
         <span className="button-icon">←</span> 上一步
       </button>
       {isPlaying ? (
-        <button onClick={onPlayPause} className="control-button pause">
+        <button onClick={onPause} className="control-button pause">
           <span className="button-icon">⏸</span> 暂停
         </button>
       ) : (
-        <button onClick={onPlayPause} className="control-button play">
+        <button onClick={onPlay} className="control-button play">
           <span className="button-icon">▶</span> 播放
         </button>
       )}
       <button 
-        onClick={onNext} 
-        disabled={!canGoForward}
+        onClick={onStepForward} 
+        disabled={!canStepForward}
         className="control-button next"
       >
         <span className="button-icon">→</span> 下一步

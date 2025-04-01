@@ -15,6 +15,10 @@
   padding: 2px 0;
   text-align: center;
   width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .leetcode-link {
@@ -30,6 +34,24 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.github-link {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: block;
+  transition: transform 0.2s ease-in-out;
+}
+
+.github-link:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+.github-icon {
+  display: block;
+  fill: #61dafb;
 }
 
 .main-content {
@@ -50,6 +72,10 @@
   .page-header h1 {
     font-size: 16px;
   }
+  
+  .github-link {
+    right: 5px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -59,5 +85,10 @@
   
   .page-header {
     padding: 1px 0;
+  }
+  
+  .github-icon {
+    width: 24px;
+    height: 24px;
   }
 } 

@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import './CodeDisplay.css';
+import { AlgorithmStepD3 } from '../../utils/algorithmStepsD3';
 
 // 使用相同的代码示例，从原始组件复制
 const codeExamples: { [key: string]: string } = {
@@ -31,7 +32,7 @@ function moveZeroes(nums) {
 };
 
 interface CodeDisplayD3Props {
-  currentStep: number;
+  currentStep: AlgorithmStepD3;
   highlightedLines: number[];
   compactMode?: boolean;
 }

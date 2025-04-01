@@ -1,170 +1,174 @@
 // D3增强版算法步骤
 import { AlgorithmStep } from './algorithmSteps';
 
-// 包含动画状态的增强步骤
+export interface ElementState {
+  highlighted: boolean;
+  comparing: boolean;
+  swapping: boolean;
+}
+
+export interface ElementData {
+  value: number;
+  index: number;
+  isZero: boolean;
+  state: ElementState;
+  x?: number;
+}
+
 export interface AlgorithmStepD3 extends AlgorithmStep {
-  // 元素动画状态
-  elementStates: {
-    [index: number]: {
-      highlighted: boolean;
-      swapping: boolean;
-      comparing: boolean;
-      targetPosition?: number; // 用于动画移动
-    };
-  };
-  // 动画阶段（用于复杂转换）
-  animationPhase?: 'highlight' | 'compare' | 'swap-start' | 'swap-end' | 'move';
+  elementData: ElementData[];
+  phase?: string;
+  message?: string;
 }
 
 /**
- * 生成带有D3动画状态的移动零算法步骤
- * @param nums 原始数组
- * @returns 带有动画状态的步骤数组
+ * 将普通数组转换为带有状态的数组元素
  */
-export const generateStepsD3 = (nums: number[]): AlgorithmStepD3[] => {
+const createElementData = (value: number, index: number): ElementData => ({
+  value,
+  index,
+  isZero: value === 0,
+  state: {
+    highlighted: false,
+    comparing: false,
+    swapping: false
+  }
+});
+
+/**
+ * 生成带有D3状态的算法步骤
+ */
+export const generateAlgorithmStepsD3 = (initialArray: number[]): AlgorithmStepD3[] => {
   const steps: AlgorithmStepD3[] = [];
-  const arr = [...nums];
-  
-  // 初始化元素状态
-  const createElementStates = (highlights: number[] = []) => {
-    const states: AlgorithmStepD3['elementStates'] = {};
-    arr.forEach((_, index) => {
-      states[index] = {
-        highlighted: highlights.includes(index),
-        swapping: false,
-        comparing: false
-      };
-    });
-    return states;
-  };
-  
+  const array = [...initialArray];
+  let slow = 0;
+  let fast = 0;
+
   // 初始状态
   steps.push({
-    array: [...arr],
-    slow: 0,
-    fast: 0,
+    array: array,
+    elementData: array.map((value, index) => createElementData(value, index)),
+    slow,
+    fast,
     action: 'init',
-    description: '初始化：快指针和慢指针都指向数组开始位置，准备开始遍历',
-    elementStates: createElementStates([0])
+    message: '开始移动零元素'
   });
-  
-  let slow = 0;
-  
-  // 交换法实现
-  for (let fast = 0; fast < arr.length; fast++) {
-    // 高亮比较元素
-    steps.push({
-      array: [...arr],
-      slow,
-      fast,
-      action: 'compare',
-      description: `检查：快指针(${fast})检查元素${arr[fast]}是否为零`,
-      elementStates: createElementStates([slow, fast]),
-      animationPhase: 'highlight'
-    });
-    
+
+  // 遍历数组
+  while (fast < array.length) {
+    const currentStep = steps[steps.length - 1];
+    const newElementData = currentStep.elementData.map(el => ({
+      ...el,
+      state: { ...el.state, highlighted: false, comparing: false, swapping: false }
+    }));
+
     // 比较阶段
-    const compareStates = createElementStates([slow, fast]);
-    compareStates[fast].comparing = true;
-    
-    steps.push({
-      array: [...arr],
-      slow,
-      fast,
-      action: 'compare',
-      description: `比较：快指针(${fast})元素${arr[fast]}${arr[fast] !== 0 ? '不是' : '是'}零`,
-      elementStates: compareStates,
-      animationPhase: 'compare'
-    });
-    
-    if (arr[fast] !== 0) {
-      // 只有当slow和fast不同且slow位置是0时才有实际交换意义
-      const needSwap = slow !== fast && arr[slow] === 0;
-      
-      if (needSwap) {
-        // 准备交换
-        const swapStartStates = createElementStates([slow, fast]);
-        swapStartStates[slow].swapping = true;
-        swapStartStates[fast].swapping = true;
-        
-        steps.push({
-          array: [...arr],
-          slow,
-          fast,
-          action: 'swap',
-          swapped: false,
-          description: `准备交换：位置${slow}的0和位置${fast}的${arr[fast]}`,
-          elementStates: swapStartStates,
-          animationPhase: 'swap-start'
-        });
-        
-        // 执行交换
-        [arr[slow], arr[fast]] = [arr[fast], arr[slow]];
-        
-        // 交换完成
-        const swapEndStates = createElementStates([slow, fast]);
-        swapEndStates[slow].highlighted = true;
-        
-        steps.push({
-          array: [...arr],
-          slow,
-          fast,
-          action: 'swap',
-          swapped: true,
-          description: `交换完成：非零元素${arr[slow]}现在在位置${slow}`,
-          elementStates: swapEndStates,
-          animationPhase: 'swap-end'
-        });
-      } else {
-        steps.push({
-          array: [...arr],
-          slow,
-          fast,
-          action: 'compare',
-          description: `无需交换：慢指针(${slow})位置已是非零数${arr[slow]}`,
-          elementStates: createElementStates([slow, fast])
-        });
-      }
-      
-      // 移动慢指针
-      slow++;
-      
-      // 创建移动状态
-      const moveStates = createElementStates([slow]);
-      if (slow < arr.length) {
-        moveStates[slow - 1].highlighted = true;
-      }
-      
+    if (array[fast] !== 0) {
+      // 高亮当前比较的元素
+      newElementData[fast].state.comparing = true;
       steps.push({
-        array: [...arr],
-        slow,
-        fast,
-        action: 'move',
-        description: `前进：慢指针前进一步到位置${slow}`,
-        elementStates: moveStates,
-        animationPhase: 'move'
-      });
-    } else {
-      steps.push({
-        array: [...arr],
+        array,
+        elementData: newElementData,
         slow,
         fast,
         action: 'compare',
-        description: `跳过：快指针(${fast})发现元素0，慢指针不移动`,
-        elementStates: createElementStates([slow, fast])
+        message: `检查元素 ${array[fast]}`,
+        phase: 'compare'
       });
+
+      if (slow !== fast) {
+        // 准备交换
+        newElementData[slow].state.swapping = true;
+        newElementData[fast].state.swapping = true;
+        steps.push({
+          array,
+          elementData: newElementData,
+          slow,
+          fast,
+          action: 'swap',
+          message: `将 ${array[fast]} 移动到位置 ${slow}`,
+          phase: 'swap-start'
+        });
+
+        // 执行交换
+        [array[slow], array[fast]] = [array[fast], array[slow]];
+        const swappedElementData = newElementData.map(el => ({
+          ...el,
+          state: { ...el.state, swapping: false }
+        }));
+
+        // 修复交换逻辑 - 正确交换元素数据
+        // 保存交换前的值以便正确更新
+        const slowValue = array[slow];
+        const fastValue = array[fast];
+
+        // 直接交换这两个元素的完整数据
+        const tempElementData = { ...swappedElementData[slow] };
+        swappedElementData[slow] = { 
+          ...swappedElementData[fast], 
+          value: slowValue,  // 使用正确的交换后的值
+          isZero: slowValue === 0,
+          index: slow  // 保持原始索引不变
+        };
+        swappedElementData[fast] = { 
+          ...tempElementData, 
+          value: fastValue,  // 使用正确的交换后的值
+          isZero: fastValue === 0,
+          index: fast  // 保持原始索引不变
+        };
+
+        steps.push({
+          array: [...array], // 创建数组的副本
+          elementData: swappedElementData,
+          slow,
+          fast,
+          action: 'swap',
+          message: `${array[slow]} 已移动到位置 ${slow}`,
+          phase: 'swap-end' // 更改为'swap-end'以区分
+        });
+      }
+      slow++;
     }
+    fast++;
+
+    // 移动指针
+    steps.push({
+      array: [...array],
+      elementData: array.map((value, index) => ({
+        value,
+        index,
+        isZero: value === 0,
+        state: { 
+          highlighted: false, 
+          comparing: false, 
+          swapping: false 
+        }
+      })),
+      slow,
+      fast,
+      action: 'move',
+      message: '移动指针',
+      phase: 'move'
+    });
   }
-  
+
   // 完成状态
+  const finalElementData = array.map((value, index) => ({
+    value,
+    index,
+    isZero: value === 0,
+    state: { highlighted: true, comparing: false, swapping: false }
+  }));
+
   steps.push({
-    array: [...arr],
+    array: [...array],
+    elementData: finalElementData,
     slow,
-    fast: arr.length - 1,
+    fast,
     action: 'complete',
-    description: '完成：所有零已移动到数组末尾，非零元素保持原有顺序',
-    elementStates: createElementStates()
+    message: '完成移动零元素',
+    phase: 'highlight'
   });
-  
+
   return steps;
 }; 

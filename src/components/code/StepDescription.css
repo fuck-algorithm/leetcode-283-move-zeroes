@@ -1,0 +1,19 @@
+.step-description {
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  margin: 10px 0;
+}
+
+.step-action {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2196f3;
+  margin-bottom: 8px;
+}
+
+.step-message {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+} 

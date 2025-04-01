@@ -42,13 +42,49 @@
   overflow: hidden;
 }
 
+.visualization-container {
+  width: 100%;
+  background-color: #2a2e3a;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border: none;
+}
+
+.visualization-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 0;
+}
+
+.visualization-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: white;
+}
+
+.visualization-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+}
+
 .visualization-section {
   flex: 1;
   display: flex;
-  flex-direction: column;
-  overflow: visible;
-  margin-bottom: 5px;
-  min-height: 0; /* 确保flex子项可以缩小 */
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+  border: none;
+  min-height: 200px;
 }
 
 /* 右面板 - 包含代码和算法解释 */

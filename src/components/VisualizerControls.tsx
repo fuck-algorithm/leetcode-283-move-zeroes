@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './VisualizerControls.css';
 
 // 预设示例
 const PRESETS = [
   { name: 'LeetCode示例1', array: [0, 1, 0, 3, 12] },
-  { name: 'LeetCode示例2', array: [0, 0, 1] },
+  { name: 'LeetCode示例2', array: [0] },
   { name: '全是零', array: [0, 0, 0, 0, 0] },
   { name: '无零数组', array: [1, 2, 3, 4, 5] },
   { name: '零在末尾', array: [1, 2, 3, 4, 0, 0] },
@@ -17,9 +17,31 @@ interface VisualizerControlsProps {
 }
 
 const VisualizerControls: React.FC<VisualizerControlsProps> = ({ onArrayChange, onSpeedChange }) => {
-  const [inputArray, setInputArray] = useState<string>('0,1,0,3,12');
+  const [inputArray, setInputArray] = useState<string>('');
   const [speed, setSpeed] = useState<number>(1);
   const [error, setError] = useState<string>('');
+  
+  // 生成随机数组
+  const generateRandomArray = () => {
+    const length = Math.floor(Math.random() * 50) + 1; // 1-50个元素
+    const array = [];
+    
+    for (let i = 0; i < length; i++) {
+      // 50%的概率生成0
+      const value = Math.random() > 0.5 ? 0 : Math.floor(Math.random() * 20) + 1;
+      array.push(value);
+    }
+    
+    setInputArray(array.join(','));
+    onArrayChange(array);
+    setError('');
+  };
+  
+  // 组件初始化时生成随机数据
+  useEffect(() => {
+    generateRandomArray();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   
   // 处理数组输入变化
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,8 +75,8 @@ const VisualizerControls: React.FC<VisualizerControlsProps> = ({ onArrayChange, 
         return;
       }
       
-      if (array.length > 20) {
-        setError('数组长度不能超过20');
+      if (array.length > 100) {
+        setError('数组长度不能超过100');
         return;
       }
       
@@ -69,22 +91,6 @@ const VisualizerControls: React.FC<VisualizerControlsProps> = ({ onArrayChange, 
   const applyPreset = (preset: { name: string; array: number[] }) => {
     setInputArray(preset.array.join(','));
     onArrayChange(preset.array);
-    setError('');
-  };
-  
-  // 生成随机数组
-  const generateRandomArray = () => {
-    const length = Math.floor(Math.random() * 10) + 5; // 5-15个元素
-    const array = [];
-    
-    for (let i = 0; i < length; i++) {
-      // 50%的概率生成0
-      const value = Math.random() > 0.5 ? 0 : Math.floor(Math.random() * 20) + 1;
-      array.push(value);
-    }
-    
-    setInputArray(array.join(','));
-    onArrayChange(array);
     setError('');
   };
   
