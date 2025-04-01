@@ -110,7 +110,7 @@ export const applySwapAnimation = (
     .attr("height", "140%")
     .html(`
       <feGaussianBlur stdDeviation="2" result="blur" />
-      <feFlood flood-color="#ff5252" flood-opacity="0.5" result="color" />
+      <feFlood flood-color="#ff5252" flood-opacity="0.3" result="color" />
       <feComposite in="color" in2="blur" operator="in" result="glow" />
       <feBlend in="SourceGraphic" in2="glow" mode="normal" />
     `);
@@ -118,6 +118,12 @@ export const applySwapAnimation = (
   // 备份元素原始位置和数据
   const data1 = element1.datum();
   const data2 = element2.datum();
+  
+  // 获取原始元素的颜色和文本样式
+  const fill1 = element1.select("rect").attr("fill") || "#61dafb";
+  const fill2 = element2.select("rect").attr("fill") || "#61dafb";
+  const textColor1 = val1 === 0 ? "white" : "#282c34";
+  const textColor2 = val2 === 0 ? "white" : "#282c34";
   
   // 创建元素副本
   const animationGroup = arrayGroup.append("g").attr("class", "animation-group");
@@ -132,18 +138,20 @@ export const applySwapAnimation = (
     .attr("height", elementHeight)
     .attr("rx", 5)
     .attr("ry", 5)
-    .attr("fill", element1.select("rect").attr("fill"))
+    .attr("fill", fill1)
     .attr("stroke", "#282c34")
     .attr("filter", `url(#${filterId})`)
-    .attr("stroke-width", 1);
+    .attr("stroke-width", 1.5);
     
   clone1.append("text")
+    .attr("class", "value-text")
     .attr("x", elementWidth / 2)
     .attr("y", elementHeight / 2)
     .attr("text-anchor", "middle")
     .attr("dominant-baseline", "middle")
-    .attr("fill", "#282c34")
+    .attr("fill", textColor1)
     .attr("font-weight", "bold")
+    .attr("font-size", "16px")
     .text(val1);
   
   // 第二个元素副本
@@ -156,18 +164,20 @@ export const applySwapAnimation = (
     .attr("height", elementHeight)
     .attr("rx", 5)
     .attr("ry", 5)
-    .attr("fill", element2.select("rect").attr("fill"))
+    .attr("fill", fill2)
     .attr("stroke", "#282c34")
     .attr("filter", `url(#${filterId})`)
-    .attr("stroke-width", 1);
+    .attr("stroke-width", 1.5);
     
   clone2.append("text")
+    .attr("class", "value-text")
     .attr("x", elementWidth / 2)
     .attr("y", elementHeight / 2)
     .attr("text-anchor", "middle")
     .attr("dominant-baseline", "middle")
-    .attr("fill", "#282c34")
+    .attr("fill", textColor2)
     .attr("font-weight", "bold")
+    .attr("font-size", "16px")
     .text(val2);
   
   // 隐藏原始元素
@@ -176,6 +186,7 @@ export const applySwapAnimation = (
   
   // 执行单一动画
   const duration = 600;
+  const halfDuration = duration / 2;
   
   // 同时移动两个克隆元素
   clone1.transition()
