@@ -83,8 +83,16 @@ const ArrayVisualizerD3Enhanced: React.FC<ArrayVisualizerEnhancedProps> = ({ ste
         const val2 = prevStep.array[idx2];
         
         // 获取元素在交换后的位置
-        const newIdx1 = step.array.findIndex(v => v === val1);
-        const newIdx2 = step.array.findIndex(v => v === val2);
+        // 注意：在实际渲染时，元素位置已经按照step.array的顺序排列了
+        // 但我们需要告诉动画函数原始索引和目标索引
+        const newIdx1 = idx2; // 交换后的位置就是对方的索引
+        const newIdx2 = idx1;
+        
+        console.log('交换动画:', {
+          从值: val1, 到值: val2,
+          从索引: idx1, 到索引: idx2,
+          新索引1: newIdx1, 新索引2: newIdx2
+        });
         
         applySwapAnimation(
           cells, 

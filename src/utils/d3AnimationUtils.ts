@@ -210,10 +210,12 @@ export const applySwapAnimation = (
   transitionSecond.on("end", function() {
     // 恢复原始元素，更新位置
     element1.attr("transform", `translate(${x2}, 0)`)
-           .style("opacity", 1);
+           .style("opacity", 1)
+           .datum(d => ({...d, index: idx2, x: x2})); // 更新数据绑定
     
     element2.attr("transform", `translate(${x1}, 0)`)
-           .style("opacity", 1);
+           .style("opacity", 1)
+           .datum(d => ({...d, index: idx1, x: x1})); // 更新数据绑定
     
     // 显示完成效果
     const finishEffect = arrayGroup.append("g").attr("class", "finish-effect");
@@ -243,6 +245,10 @@ export const applySwapAnimation = (
       .attr("r", elementWidth)
       .attr("opacity", 0)
       .on("end", function() {
+        // 更新索引文本，确保显示正确的索引
+        element1.select(".index-label").text(idx2);
+        element2.select(".index-label").text(idx1);
+        
         // 动画完成后，执行一些放大缩小的效果
         element1.select("rect")
           .transition()
