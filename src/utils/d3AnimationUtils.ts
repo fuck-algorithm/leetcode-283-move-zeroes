@@ -118,11 +118,13 @@ export const applySwapAnimation = (
   // 获取原始元素的颜色和文本样式
   const fill1 = element1.select("rect").attr("fill") || "#61dafb";
   const fill2 = element2.select("rect").attr("fill") || "#61dafb";
-  const textColor1 = val1 === 0 ? "white" : "#282c34";
-  const textColor2 = val2 === 0 ? "white" : "#282c34";
+  const textColor1 = val1 === 0 ? "#ffffff" : "#282c34";
+  const textColor2 = val2 === 0 ? "#ffffff" : "#282c34";
   
   // 创建元素副本
-  const animationGroup = arrayGroup.append("g").attr("class", "animation-group");
+  const animationGroup = arrayGroup.append("g")
+    .attr("class", "animation-group")
+    .style("pointer-events", "none"); // 防止动画过程中的交互
   
   // 创建路径
   const path1 = d3.path();
@@ -154,7 +156,8 @@ export const applySwapAnimation = (
     .attr("fill", fill1)
     .attr("stroke", "#282c34")
     .attr("filter", `url(#${filterId})`)
-    .attr("stroke-width", 1.5);
+    .attr("stroke-width", 1.5)
+    .style("opacity", 1);
     
   clone1.append("text")
     .attr("class", "value-text")
@@ -165,6 +168,7 @@ export const applySwapAnimation = (
     .attr("fill", textColor1)
     .attr("font-weight", "bold")
     .attr("font-size", "16px")
+    .style("opacity", 1)
     .text(val1);
   
   // 第二个元素副本
@@ -180,7 +184,8 @@ export const applySwapAnimation = (
     .attr("fill", fill2)
     .attr("stroke", "#282c34")
     .attr("filter", `url(#${filterId})`)
-    .attr("stroke-width", 1.5);
+    .attr("stroke-width", 1.5)
+    .style("opacity", 1);
     
   clone2.append("text")
     .attr("class", "value-text")
@@ -191,6 +196,7 @@ export const applySwapAnimation = (
     .attr("fill", textColor2)
     .attr("font-weight", "bold")
     .attr("font-size", "16px")
+    .style("opacity", 1)
     .text(val2);
   
   // 隐藏原始元素
