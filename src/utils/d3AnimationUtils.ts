@@ -88,46 +88,94 @@ export const applySwapAnimation = (
   newIdx1: number,
   newIdx2: number,
   elementWidth: number,
-  elementPadding: number
+  elementPadding: number,
+  arrayGroup: d3.Selection<SVGGElement, unknown, null, undefined>
 ) => {
+  // 根据索引获取元素
+  const element1 = cells.filter(d => d.index === idx1);
+  const element2 = cells.filter(d => d.index === idx2);
+  
   const x1 = idx1 * (elementWidth + elementPadding);
   const x2 = idx2 * (elementWidth + elementPadding);
-  const newX1 = newIdx1 * (elementWidth + elementPadding);
-  const newX2 = newIdx2 * (elementWidth + elementPadding);
   
-  // 应用交换动画到第一个元素
-  cells.filter(d => d.value === val1)
-    .attr("transform", `translate(${x1}, 0)`)
-    .transition()
+  // 创建动画辅助元素，用于显示交换过程中的移动路径
+  const animationGroup = arrayGroup.append("g")
+    .attr("class", "animation-group");
+  
+  // 创建第一个移动元素的副本
+  const animElement1 = animationGroup.append("rect")
+    .attr("width", elementWidth)
+    .attr("height", elementWidth)
+    .attr("rx", 5)
+    .attr("ry", 5)
+    .attr("fill", element1.select("rect").attr("fill") || "#ff5252")
+    .attr("x", x1)
+    .attr("y", 0)
+    .attr("stroke", "#282c34")
+    .attr("stroke-width", 1)
+    .attr("opacity", 0.9);
+  
+  // 添加第一个元素的文本
+  animationGroup.append("text")
+    .attr("x", x1 + elementWidth / 2)
+    .attr("y", elementWidth / 2)
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "middle")
+    .attr("fill", "#282c34")
+    .attr("font-weight", "bold")
+    .text(val1);
+  
+  // 创建第二个移动元素的副本
+  const animElement2 = animationGroup.append("rect")
+    .attr("width", elementWidth)
+    .attr("height", elementWidth)
+    .attr("rx", 5)
+    .attr("ry", 5)
+    .attr("fill", element2.select("rect").attr("fill") || "#ff5252")
+    .attr("x", x2)
+    .attr("y", 0)
+    .attr("stroke", "#282c34")
+    .attr("stroke-width", 1)
+    .attr("opacity", 0.9);
+  
+  // 添加第二个元素的文本
+  animationGroup.append("text")
+    .attr("x", x2 + elementWidth / 2)
+    .attr("y", elementWidth / 2)
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "middle")
+    .attr("fill", "#282c34")
+    .attr("font-weight", "bold")
+    .text(val2);
+  
+  // 应用交换动画
+  animElement1.transition()
     .duration(600)
     .attrTween("transform", function() {
-      return function(t) {
-        // 计算沿曲线的位置
+      return function(t: number) {
         const y = Math.sin(Math.PI * t) * 30; // 弧形路径
-        const x = x1 + (newX1 - x1) * t;
+        const x = (x2 - x1) * t;
         return `translate(${x}, ${-y})`;
       };
-    })
-    .transition()
-    .duration(100)
-    .attr("transform", `translate(${newX1}, 0)`);
+    });
   
-  // 应用交换动画到第二个元素
-  cells.filter(d => d.value === val2)
-    .attr("transform", `translate(${x2}, 0)`)
-    .transition()
+  animElement2.transition()
     .duration(600)
     .attrTween("transform", function() {
-      return function(t) {
-        // 计算沿曲线的位置
+      return function(t: number) {
         const y = Math.sin(Math.PI * t) * 30; // 弧形路径
-        const x = x2 + (newX2 - x2) * t;
+        const x = (x1 - x2) * t;
         return `translate(${x}, ${y})`;
       };
     })
-    .transition()
-    .duration(100)
-    .attr("transform", `translate(${newX2}, 0)`);
+    .on("end", function() {
+      // 移除动画组
+      animationGroup.remove();
+      
+      // 更新原始元素位置
+      element1.attr("transform", `translate(${x2}, 0)`);
+      element2.attr("transform", `translate(${x1}, 0)`);
+    });
 };
 
 /**

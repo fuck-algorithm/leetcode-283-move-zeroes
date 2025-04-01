@@ -86,7 +86,18 @@ const ArrayVisualizerD3Enhanced: React.FC<ArrayVisualizerEnhancedProps> = ({ ste
         const newIdx1 = step.array.findIndex(v => v === val1);
         const newIdx2 = step.array.findIndex(v => v === val2);
         
-        applySwapAnimation(cells, val1, val2, idx1, idx2, newIdx1, newIdx2, elementWidth, elementPadding);
+        applySwapAnimation(
+          cells, 
+          val1, 
+          val2, 
+          idx1, 
+          idx2, 
+          newIdx1, 
+          newIdx2, 
+          elementWidth, 
+          elementPadding,
+          arrayGroup
+        );
       }
     }
     
