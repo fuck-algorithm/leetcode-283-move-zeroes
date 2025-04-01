@@ -98,10 +98,73 @@ export const applySwapAnimation = (
   
   const x1 = idx1 * (elementWidth + elementPadding);
   const x2 = idx2 * (elementWidth + elementPadding);
+
+  // 创建箭头标记
+  const markerId = "arrow-" + Date.now();
+  const defs = arrayGroup.append("defs");
+  
+  defs.append("marker")
+    .attr("id", markerId)
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 5)
+    .attr("refY", 0)
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,-5L10,0L0,5")
+    .attr("fill", "#ff5252");
+
+  // 创建交换路径组
+  const pathGroup = arrayGroup.append("g")
+    .attr("class", "swap-paths");
+
+  // 创建上方的交换路径
+  const upperPath = d3.path();
+  upperPath.moveTo(x1 + elementWidth/2, elementHeight/2);
+  upperPath.bezierCurveTo(
+    x1 + elementWidth/2, elementHeight/2 - 30,
+    x2 + elementWidth/2, elementHeight/2 - 30,
+    x2 + elementWidth/2, elementHeight/2
+  );
+
+  // 创建下方的交换路径
+  const lowerPath = d3.path();
+  lowerPath.moveTo(x2 + elementWidth/2, elementHeight/2);
+  lowerPath.bezierCurveTo(
+    x2 + elementWidth/2, elementHeight/2 + 30,
+    x1 + elementWidth/2, elementHeight/2 + 30,
+    x1 + elementWidth/2, elementHeight/2
+  );
+
+  // 添加上方路径
+  pathGroup.append("path")
+    .attr("d", upperPath.toString())
+    .attr("fill", "none")
+    .attr("stroke", "#ff5252")
+    .attr("stroke-width", 2)
+    .attr("stroke-dasharray", "5,3")
+    .attr("marker-end", `url(#${markerId})`)
+    .attr("opacity", 0)
+    .transition()
+    .duration(300)
+    .attr("opacity", 0.7);
+
+  // 添加下方路径
+  pathGroup.append("path")
+    .attr("d", lowerPath.toString())
+    .attr("fill", "none")
+    .attr("stroke", "#ff5252")
+    .attr("stroke-width", 2)
+    .attr("stroke-dasharray", "5,3")
+    .attr("marker-end", `url(#${markerId})`)
+    .attr("opacity", 0)
+    .transition()
+    .duration(300)
+    .attr("opacity", 0.7);
   
   // 创建唯一ID的滤镜
   const filterId = "swap-glow-" + Date.now();
-  const defs = arrayGroup.append("defs");
   defs.append("filter")
     .attr("id", filterId)
     .attr("x", "-20%")
@@ -124,24 +187,7 @@ export const applySwapAnimation = (
   // 创建元素副本
   const animationGroup = arrayGroup.append("g")
     .attr("class", "animation-group")
-    .style("pointer-events", "none"); // 防止动画过程中的交互
-  
-  // 创建路径
-  const path1 = d3.path();
-  path1.moveTo(x1 + elementWidth/2, elementHeight/2);
-  path1.bezierCurveTo(
-    x1 + elementWidth/2, elementHeight/2 - 30, // 向上移动
-    x2 + elementWidth/2, elementHeight/2 - 30, // 水平移动
-    x2 + elementWidth/2, elementHeight/2 // 向下移动
-  );
-  
-  const path2 = d3.path();
-  path2.moveTo(x2 + elementWidth/2, elementHeight/2);
-  path2.bezierCurveTo(
-    x2 + elementWidth/2, elementHeight/2 + 30, // 向下移动
-    x1 + elementWidth/2, elementHeight/2 + 30, // 水平移动
-    x1 + elementWidth/2, elementHeight/2 // 向上移动
-  );
+    .style("pointer-events", "none");
   
   // 第一个元素副本
   const clone1 = animationGroup.append("g")
@@ -266,6 +312,7 @@ export const applySwapAnimation = (
         .attr("transform", "scale(1)");
       
       // 清理
+      pathGroup.remove();
       animationGroup.remove();
       defs.remove();
       
