@@ -1,0 +1,58 @@
+.array-container-d3 {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 5px;
+  min-height: 120px;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+svg {
+  overflow: visible;
+}
+
+.array-element rect {
+  transition: all 0.5s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.zero-element rect {
+  fill: #777;
+}
+
+.swapping rect {
+  fill: #ff5252;
+  transform: scale(1.1);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.pointer circle {
+  animation: pulse 1s infinite;
+}
+
+@media (max-width: 768px) {
+  .array-container-d3 {
+    padding: 3px;
+  }
+}
+
+@media (max-width: 480px) {
+  .array-container-d3 {
+    padding: 2px;
+  }
+} 

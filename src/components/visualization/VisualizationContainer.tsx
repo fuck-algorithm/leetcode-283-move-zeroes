@@ -2,14 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import './VisualizationContainer.css';
 
 // 导入通用工具和接口
-import { AlgorithmStep, generateSteps } from '../../utils/algorithmSteps';
+import { AlgorithmStep } from '../../utils/algorithmSteps';
+import { AlgorithmStepD3, generateStepsD3 } from '../../utils/algorithmStepsD3';
 
 // 导入子组件
-import ArrayVisualizer from './ArrayVisualizer';
+// import ArrayVisualizer from './ArrayVisualizer';
+// import ArrayVisualizerD3 from './ArrayVisualizerD3';
+import ArrayVisualizerD3Enhanced from './ArrayVisualizerD3Enhanced';
 import StepDescription from './StepDescription';
 import ProgressStats from './ProgressStats';
 import ControlButtons from '../controls/ControlButtons';
-import CodeDisplay from '../code/CodeDisplay';
+// import CodeDisplay from '../code/CodeDisplay';
+import CodeDisplayD3 from '../code/CodeDisplayD3';
 import AlgorithmExplanation from '../code/AlgorithmExplanation';
 import UserGuide from './UserGuide';
 
@@ -23,7 +27,7 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
   speed 
 }) => {
   // 状态
-  const [steps, setSteps] = useState<AlgorithmStep[]>([]);
+  const [steps, setSteps] = useState<AlgorithmStepD3[]>([]);
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(-1);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [swapCount, setSwapCount] = useState<number>(0);
@@ -35,7 +39,7 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
   // 生成算法步骤
   useEffect(() => {
     if (initialArray?.length) {
-      const algorithmSteps = generateSteps([...initialArray]);
+      const algorithmSteps = generateStepsD3([...initialArray]);
       setSteps(algorithmSteps);
       setCurrentStepIndex(-1);
       setSwapCount(0);
@@ -151,6 +155,7 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
   
   // 获取当前步骤
   const currentStep = steps[currentStepIndex] || steps[0];
+  const prevStep = currentStepIndex > 0 ? steps[currentStepIndex - 1] : undefined;
 
   // 获取当前高亮行
   const getHighlightedLines = () => {
@@ -173,18 +178,6 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
     }
   };
 
-  // 转换数组数据格式以适应ArrayVisualizer组件
-  const getArrayElements = () => {
-    if (!currentStep?.array) return [];
-    
-    return currentStep.array.map((value, index) => ({
-      value,
-      isZero: value === 0,
-      slowPointer: index === currentStep.slow,
-      fastPointer: index === currentStep.fast
-    }));
-  };
-
   return (
     <div className="algorithm-visualizer">
       <div className="compact-layout">
@@ -192,7 +185,7 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
 
         <div className="left-panel">
           <div className="visualization-section">
-            <ArrayVisualizer elements={getArrayElements()} />
+            <ArrayVisualizerD3Enhanced step={currentStep} prevStep={prevStep} />
             
             <StepDescription 
               action={currentStep?.action || 'init'} 
@@ -219,7 +212,7 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
         
         <div className="right-panel">
           <div className="code-explanation-container">
-            <CodeDisplay 
+            <CodeDisplayD3 
               currentStep={currentStepIndex} 
               highlightedLines={getHighlightedLines()}
               compactMode={true}
