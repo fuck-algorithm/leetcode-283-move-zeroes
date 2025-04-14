@@ -1,25 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useCustomTranslation } from '../../i18n';
+import './VisualizationContainer.css';
 import ArrayVisualizerD3Enhanced from './ArrayVisualizerD3Enhanced';
+import { AlgorithmStepD3, generateAlgorithmStepsD3 } from '../../utils/algorithmStepsD3';
 import StepDescription from './StepDescription';
 import ControlButtons from '../controls/ControlButtons';
-import ProgressStats from '../controls/ProgressStats';
-import { AlgorithmStepD3 } from '../../utils/algorithmStepsD3';
-import { generateAlgorithmStepsD3 } from '../../utils/algorithmStepsD3';
-import { useKeyboardControls } from '../../hooks/useKeyboardControls';
-import './VisualizationContainer.css';
+import ProgressStats from './ProgressStats';
 
+/**
+ * 可视化容器组件，负责展示算法的可视化过程
+ */
 interface VisualizationContainerProps {
   inputArray: number[];
 }
 
 const VisualizationContainer: React.FC<VisualizationContainerProps> = ({ inputArray }) => {
+  const { t } = useCustomTranslation();
+  const [steps, setSteps] = useState<AlgorithmStepD3[]>([]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [steps, setSteps] = useState<AlgorithmStepD3[]>([]);
 
+  // 当输入数组变化时，重新生成可视化步骤
   useEffect(() => {
     const newSteps = generateAlgorithmStepsD3(inputArray);
     setSteps(newSteps);
+    setCurrentStepIndex(0);
+    setIsPlaying(false);
   }, [inputArray]);
 
   const handlePlay = () => setIsPlaying(true);
@@ -31,57 +37,48 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({ inputAr
 
   const handleStepForward = () => {
     if (currentStepIndex < steps.length - 1) {
-      setCurrentStepIndex(prev => prev + 1);
+      setCurrentStepIndex(currentStepIndex + 1);
+    } else {
+      setIsPlaying(false);
     }
   };
 
   const handleStepBackward = () => {
     if (currentStepIndex > 0) {
-      setCurrentStepIndex(prev => prev - 1);
+      setCurrentStepIndex(currentStepIndex - 1);
     }
   };
 
-  useKeyboardControls({
-    onPlay: handlePlay,
-    onPause: handlePause,
-    onReset: handleReset,
-    onStepForward: handleStepForward,
-    onStepBackward: handleStepBackward,
-  });
-
+  // 自动播放效果
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
+    if (!isPlaying) return;
 
-    if (isPlaying && currentStepIndex < steps.length - 1) {
-      intervalId = setInterval(() => {
-        setCurrentStepIndex(prev => {
-          if (prev >= steps.length - 1) {
-            setIsPlaying(false);
-            return prev;
-          }
-          return prev + 1;
-        });
-      }, 1000);
-    }
+    const interval = setInterval(() => {
+      if (currentStepIndex < steps.length - 1) {
+        setCurrentStepIndex(prev => prev + 1);
+      } else {
+        setIsPlaying(false);
+      }
+    }, 500); // 500 毫秒的间隔
 
     return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
+      clearInterval(interval);
     };
   }, [isPlaying, currentStepIndex, steps.length]);
 
   const currentStep = steps[currentStepIndex];
 
   if (!currentStep) {
-    return <div>加载中...</div>;
+    return <div>{t('visualization.loading')}</div>;
   }
+
+  // 计算交换次数
+  const calculateSwapCount = () => {
+    return steps.filter(step => step.action === 'swap').length;
+  };
 
   return (
     <div className="visualization-container">
-      <div className="visualization-header">
-        <h2>可视化演示</h2>
-      </div>
       <div className="visualization-content">
         <div className="visualization-section">
           <ArrayVisualizerD3Enhanced
@@ -107,6 +104,7 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({ inputAr
           <ProgressStats
             currentStep={currentStepIndex}
             totalSteps={steps.length}
+            swapCount={calculateSwapCount()}
           />
         </div>
       </div>

@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useCustomTranslation } from '../i18n';
 import './VisualizerControls.css';
 
 // 预设示例
 const PRESETS = [
-  { name: 'LeetCode示例1', array: [0, 1, 0, 3, 12] },
-  { name: 'LeetCode示例2', array: [0] },
-  { name: '全是零', array: [0, 0, 0, 0, 0] },
-  { name: '无零数组', array: [1, 2, 3, 4, 5] },
-  { name: '零在末尾', array: [1, 2, 3, 4, 0, 0] },
-  { name: '较长数组', array: [0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0] },
+  { name: 'presets.example1', array: [0, 1, 0, 3, 12] },
+  { name: 'presets.example2', array: [0] },
+  { name: 'presets.allZeros', array: [0, 0, 0, 0, 0] },
+  { name: 'presets.noZeros', array: [1, 2, 3, 4, 5] },
+  { name: 'presets.zerosAtEnd', array: [1, 2, 3, 4, 0, 0] },
+  { name: 'presets.longArray', array: [0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0] },
 ];
 
 interface VisualizerControlsProps {
@@ -17,6 +18,7 @@ interface VisualizerControlsProps {
 }
 
 const VisualizerControls: React.FC<VisualizerControlsProps> = ({ onArrayChange, onSpeedChange }) => {
+  const { t } = useCustomTranslation();
   const [inputArray, setInputArray] = useState<string>('');
   const [speed, setSpeed] = useState<number>(1);
   const [error, setError] = useState<string>('');
@@ -65,25 +67,25 @@ const VisualizerControls: React.FC<VisualizerControlsProps> = ({ onArrayChange, 
         .map(item => {
           const num = parseInt(item.trim(), 10);
           if (isNaN(num)) {
-            throw new Error('包含非数字值');
+            throw new Error(t('errors.nonNumeric'));
           }
           return num;
         });
       
       if (array.length === 0) {
-        setError('数组不能为空');
+        setError(t('errors.emptyArray'));
         return;
       }
       
       if (array.length > 100) {
-        setError('数组长度不能超过100');
+        setError(t('errors.tooLarge'));
         return;
       }
       
       onArrayChange(array);
       setError('');
     } catch (err) {
-      setError('请输入有效的数组，例如：0,1,0,3,12');
+      setError(t('errors.invalidInput'));
     }
   };
   
@@ -103,9 +105,9 @@ const VisualizerControls: React.FC<VisualizerControlsProps> = ({ onArrayChange, 
               type="text"
               value={inputArray}
               onChange={handleInputChange}
-              placeholder="输入数组，例如：0,1,0,3,12"
+              placeholder={t('controls.inputPlaceholder')}
             />
-            <button onClick={applyArray}>应用</button>
+            <button onClick={applyArray}>{t('controls.apply')}</button>
           </div>
           {error && <div className="error-message">{error}</div>}
         </div>
@@ -113,7 +115,7 @@ const VisualizerControls: React.FC<VisualizerControlsProps> = ({ onArrayChange, 
         <div className="speed-and-presets">
           <div className="speed-control">
             <label>
-              速度: {speed.toFixed(1)}x
+              {t('controls.speed')}: {speed.toFixed(1)}x
               <input
                 type="range"
                 min="0.5"
@@ -132,14 +134,14 @@ const VisualizerControls: React.FC<VisualizerControlsProps> = ({ onArrayChange, 
                 onClick={() => applyPreset(preset)}
                 className="preset-button"
               >
-                {preset.name}
+                {t(preset.name)}
               </button>
             ))}
             <button
               onClick={generateRandomArray}
               className="preset-button random"
             >
-              随机
+              {t('controls.random')}
             </button>
           </div>
         </div>

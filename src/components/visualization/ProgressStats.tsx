@@ -1,5 +1,6 @@
 import React from 'react';
 import './ProgressStats.css';
+import { useCustomTranslation } from '../../i18n';
 
 interface ProgressStatsProps {
   currentStep: number;
@@ -12,6 +13,7 @@ const ProgressStats: React.FC<ProgressStatsProps> = ({
   totalSteps, 
   swapCount 
 }) => {
+  const { t } = useCustomTranslation();
   const progressPercentage = totalSteps > 0 
     ? Math.floor(((currentStep + 1) / totalSteps) * 100) 
     : 0;
@@ -27,10 +29,10 @@ const ProgressStats: React.FC<ProgressStatsProps> = ({
       
       <div className="statistics">
         <div className="statistic">
-          <span>交换次数: {swapCount}</span>
+          <span>{t('visualization.swapCount')}: {swapCount}</span>
         </div>
         <div className="statistic">
-          <span>步骤: {currentStep + 1}/{totalSteps}</span>
+          <span>{t('visualization.step')}: {currentStep + 1} {t('visualization.of')} {totalSteps}</span>
         </div>
       </div>
     </div>

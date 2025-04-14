@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useCustomTranslation } from './i18n';
 
 /**
  * 实现 LeetCode 283. Move Zeroes
  * 给定一个数组，将所有的0移动到数组的末尾，同时保持非零元素的相对顺序。
  */
 const MoveZeroes: React.FC = () => {
+  const { t } = useCustomTranslation();
   const [inputArray, setInputArray] = useState<string>('0,1,0,3,12');
   const [resultArray, setResultArray] = useState<number[]>([]);
 
@@ -45,32 +47,38 @@ const MoveZeroes: React.FC = () => {
       setResultArray(result);
     } catch (error) {
       console.error('输入格式有误', error);
-      alert('请确保输入格式正确，例如：0,1,0,3,12');
+      alert(t('algorithm.inputError'));
     }
   };
 
   return (
     <div className="move-zeroes">
-      <h2>LeetCode 283: 移动零</h2>
-      <p>给定一个数组，将所有的0移动到数组的末尾，同时保持非零元素的相对顺序。</p>
+      <h2>{t('app.title')}</h2>
+      <p>{t('algorithm.description')}</p>
+      <p>{t('algorithm.note')}</p>
+      <p>{t('algorithm.example')}</p>
       
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="array-input">输入数组（用逗号分隔）：</label>
+          <label htmlFor="array-input">
+            {t('algorithm.inputLabel')}：
+          </label>
           <input
             id="array-input"
             type="text"
             value={inputArray}
             onChange={handleInputChange}
-            placeholder="例如：0,1,0,3,12"
+            placeholder={t('algorithm.inputPlaceholder')}
           />
         </div>
-        <button type="submit">移动零</button>
+        <button type="submit">
+          {t('algorithm.moveZeroesButton')}
+        </button>
       </form>
       
       {resultArray.length > 0 && (
         <div className="result">
-          <h3>结果：</h3>
+          <h3>{t('algorithm.resultTitle')}：</h3>
           <p>[{resultArray.join(', ')}]</p>
         </div>
       )}

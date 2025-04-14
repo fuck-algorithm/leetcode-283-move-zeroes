@@ -1,5 +1,6 @@
 // D3增强版算法步骤
 import { AlgorithmStep } from './algorithmSteps';
+import { getTranslation, formatTranslation } from '../i18n';
 
 export interface ElementState {
   highlighted: boolean;
@@ -51,7 +52,7 @@ export const generateAlgorithmStepsD3 = (initialArray: number[]): AlgorithmStepD
     slow,
     fast,
     action: 'init',
-    message: '开始移动零元素'
+    message: formatTranslation('algorithmSteps.startMovingZeroes', [])
   });
 
   // 遍历数组
@@ -72,7 +73,7 @@ export const generateAlgorithmStepsD3 = (initialArray: number[]): AlgorithmStepD
         slow,
         fast,
         action: 'compare',
-        message: `检查元素 ${array[fast]}`,
+        message: formatTranslation('algorithmSteps.checkElement', [array[fast]]),
         phase: 'compare'
       });
 
@@ -86,7 +87,7 @@ export const generateAlgorithmStepsD3 = (initialArray: number[]): AlgorithmStepD
           slow,
           fast,
           action: 'swap',
-          message: `将 ${array[fast]} 移动到位置 ${slow}`,
+          message: formatTranslation('algorithmSteps.moveToPosition', [array[fast], slow]),
           phase: 'swap-start'
         });
 
@@ -123,7 +124,7 @@ export const generateAlgorithmStepsD3 = (initialArray: number[]): AlgorithmStepD
           slow,
           fast,
           action: 'swap',
-          message: `${array[slow]} 已移动到位置 ${slow}`,
+          message: formatTranslation('algorithmSteps.elementMoved', [array[slow], slow]),
           phase: 'swap-end' // 更改为'swap-end'以区分
         });
       }
@@ -147,7 +148,7 @@ export const generateAlgorithmStepsD3 = (initialArray: number[]): AlgorithmStepD
       slow,
       fast,
       action: 'move',
-      message: '移动指针',
+      message: formatTranslation('algorithmSteps.movingPointers', []),
       phase: 'move'
     });
   }
@@ -166,7 +167,7 @@ export const generateAlgorithmStepsD3 = (initialArray: number[]): AlgorithmStepD
     slow,
     fast,
     action: 'complete',
-    message: '完成移动零元素',
+    message: formatTranslation('algorithmSteps.zeroesMoveComplete', []),
     phase: 'highlight'
   });
 

@@ -12,13 +12,14 @@
 }
 
 .page-header {
-  padding: 2px 0;
+  padding: 30px 0 15px;
   text-align: center;
   width: 100%;
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-bottom: 10px;
 }
 
 .leetcode-link {
@@ -69,7 +70,8 @@
     overflow: auto;
   }
   
-  .page-header h1 {
+  .page-header {
+    padding: 30px 0 15px;
     font-size: 16px;
   }
   
@@ -84,11 +86,11 @@
   }
   
   .page-header {
-    padding: 1px 0;
+    padding: 25px 0 10px;
   }
   
   .github-icon {
     width: 24px;
     height: 24px;
   }
-} 
+}

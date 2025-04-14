@@ -1,4 +1,6 @@
 // 算法步骤类型
+import { getTranslation, formatTranslation } from '../i18n';
+
 export interface AlgorithmStep {
   array: number[];
   slow: number;
@@ -23,7 +25,7 @@ export const generateSteps = (nums: number[]): AlgorithmStep[] => {
     slow: 0,
     fast: 0,
     action: 'init',
-    description: '初始化：快指针和慢指针都指向数组开始位置，准备开始遍历'
+    description: formatTranslation('algorithmSteps.init', [])
   });
   
   let slow = 0;
@@ -36,7 +38,7 @@ export const generateSteps = (nums: number[]): AlgorithmStep[] => {
       slow,
       fast,
       action: 'compare',
-      description: `检查：快指针(${fast})检查元素${arr[fast]}是否为零`
+      description: formatTranslation('algorithmSteps.checking', [fast, arr[fast]])
     });
     
     if (arr[fast] !== 0) {
@@ -52,7 +54,7 @@ export const generateSteps = (nums: number[]): AlgorithmStep[] => {
           fast,
           action: 'swap',
           swapped: true,
-          description: `交换：找到非零元素${arr[slow]}，与位置${slow}的0进行交换`
+          description: formatTranslation('algorithmSteps.swap', [arr[slow], slow])
         });
       } else {
         steps.push({
@@ -60,7 +62,7 @@ export const generateSteps = (nums: number[]): AlgorithmStep[] => {
           slow,
           fast,
           action: 'compare',
-          description: `无需交换：慢指针(${slow})位置已是非零数${arr[slow]}`
+          description: formatTranslation('algorithmSteps.noSwapNeeded', [slow, arr[slow]])
         });
       }
       
@@ -71,7 +73,7 @@ export const generateSteps = (nums: number[]): AlgorithmStep[] => {
         slow,
         fast,
         action: 'move',
-        description: `前进：慢指针前进一步到位置${slow}`
+        description: formatTranslation('algorithmSteps.advance', [slow])
       });
     } else {
       steps.push({
@@ -79,7 +81,7 @@ export const generateSteps = (nums: number[]): AlgorithmStep[] => {
         slow,
         fast,
         action: 'compare',
-        description: `跳过：快指针(${fast})发现元素0，慢指针不移动`
+        description: formatTranslation('algorithmSteps.skip', [fast])
       });
     }
   }
@@ -90,7 +92,7 @@ export const generateSteps = (nums: number[]): AlgorithmStep[] => {
     slow,
     fast: arr.length - 1,
     action: 'complete',
-    description: '完成：所有零已移动到数组末尾，非零元素保持原有顺序'
+    description: formatTranslation('algorithmSteps.complete', [])
   });
   
   return steps;

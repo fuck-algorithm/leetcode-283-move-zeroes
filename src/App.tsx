@@ -1,8 +1,13 @@
 import React, { useEffect } from 'react';
+import { useCustomTranslation } from './i18n';
 import './App.css';
 import VisualizerPage from './components/VisualizerPage';
+import LanguageSwitcher from './components/LanguageSwitcher';
+import GithubLink from './components/GithubLink';
 
 function App() {
+  const { t } = useCustomTranslation();
+
   // 添加键盘事件监听
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -20,9 +25,13 @@ function App() {
   
   return (
     <div className="App">
-      <div className="App-header">
+      {/* 右上角工具栏 */}
+      <GithubLink />
+      <LanguageSwitcher />
+      
+      <header className="App-header">
         <VisualizerPage />
-      </div>
+      </header>
     </div>
   );
 }
