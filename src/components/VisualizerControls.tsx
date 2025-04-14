@@ -96,16 +96,27 @@ const VisualizerControls: React.FC<VisualizerControlsProps> = ({ onArrayChange, 
   // 应用数组
   const applyArray = () => {
     try {
+      // 先将中文逗号替换为英文逗号，然后按逗号分割
+      const processedInput = inputArray.replace(/，/g, ',');
+      
       // 验证并转换输入
-      const array = inputArray
+      const array = processedInput
         .split(',')
         .map(item => {
-          const num = parseInt(item.trim(), 10);
+          // 移除前后空格
+          const trimmedItem = item.trim();
+          if (!trimmedItem && trimmedItem !== '0') {
+            // 跳过空元素，但保留'0'
+            return null;
+          }
+          
+          const num = parseInt(trimmedItem, 10);
           if (isNaN(num)) {
             throw new Error(t('errors.nonNumeric'));
           }
           return num;
-        });
+        })
+        .filter(item => item !== null); // 过滤掉空元素
       
       if (array.length === 0) {
         setError(t('errors.emptyArray'));
