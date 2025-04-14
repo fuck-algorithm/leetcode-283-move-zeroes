@@ -116,7 +116,7 @@ const VisualizerControls: React.FC<VisualizerControlsProps> = ({ onArrayChange, 
           }
           return num;
         })
-        .filter(item => item !== null); // 过滤掉空元素
+        .filter((item): item is number => item !== null); // 明确指定过滤后的类型为number
       
       if (array.length === 0) {
         setError(t('errors.emptyArray'));
