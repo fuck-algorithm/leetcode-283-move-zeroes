@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import { getTranslation, formatTranslation } from '../i18n';
 
 /**
  * 创建交换路径
@@ -37,364 +38,411 @@ export const createSwapPaths = (startX: number, endX: number, height: number): S
 };
 
 /**
- * 应用交换动画
+ * 创建增强的高亮效果
+ * @param container 容器元素
+ * @param element 要高亮的元素
+ * @param color 高亮颜色
+ * @param duration 动画持续时间
+ */
+export const createHighlightEffect = (
+  container: d3.Selection<SVGGElement, unknown, null, undefined>,
+  element: d3.Selection<any, unknown, SVGGElement, unknown>,
+  color: string = '#ff6a00',
+  duration: number = 500
+) => {
+  // 1. 添加脉动效果
+  element.select('rect')
+    .transition()
+    .duration(duration / 2)
+    .style('stroke', color)
+    .style('stroke-width', 4)
+    .attr('transform', 'scale(1.15)')
+    .transition()
+    .duration(duration / 2)
+    .style('stroke-width', 3)
+    .attr('transform', 'scale(1)');
+
+  // 2. 添加光环效果
+  const elementNode = element.node();
+  if (elementNode) {
+    const rect = element.select('rect');
+    const bbox = (elementNode as SVGGElement).getBBox();
+    
+    // 创建一个临时的发光效果
+    const glow = container.append('rect')
+      .attr('class', 'temp-highlight-glow')
+      .attr('x', bbox.x - 5)
+      .attr('y', bbox.y - 5)
+      .attr('width', bbox.width + 10)
+      .attr('height', bbox.height + 10)
+      .attr('rx', rect.attr('rx'))
+      .attr('ry', rect.attr('ry'))
+      .style('fill', 'none')
+      .style('stroke', color)
+      .style('stroke-width', 2)
+      .style('stroke-dasharray', '5,3')
+      .style('opacity', 0)
+      .style('pointer-events', 'none');
+    
+    // 添加淡入淡出动画
+    glow.transition()
+      .duration(duration / 2)
+      .style('opacity', 0.8)
+      .transition()
+      .duration(duration / 2)
+      .style('opacity', 0)
+      .on('end', function() {
+        d3.select(this).remove(); // 动画结束后移除
+      });
+  }
+
+  return element;
+};
+
+/**
+ * 创建元素克隆
+ * @param container 容器元素
+ * @param element 要克隆的元素
+ * @param targetPosition 目标位置的索引
+ * @param elementWidth 元素宽度
+ * @param elementPadding 元素间距
+ */
+export const createElementClone = (
+  container: d3.Selection<SVGGElement, unknown, null, undefined>,
+  element: d3.Selection<any, unknown, SVGGElement, unknown>,
+  targetPosition: number,
+  elementWidth: number,
+  elementPadding: number
+) => {
+  // 获取原始元素节点
+  const originalNode = element.node() as any;
+  if (!originalNode) return null;
+  
+  // 创建克隆元素组
+  const clone = container.append('g')
+    .attr('class', 'element-clone')
+    .attr('transform', `translate(${targetPosition * (elementWidth + elementPadding)},0)`)
+    .style('opacity', 0)
+    .style('pointer-events', 'none');
+  
+  // 复制矩形
+  const rect = element.select('rect');
+  clone.append('rect')
+    .attr('width', rect.attr('width'))
+    .attr('height', rect.attr('height'))
+    .attr('rx', rect.attr('rx'))
+    .attr('ry', rect.attr('ry'))
+    .style('fill', rect.style('fill'))
+    .style('stroke', '#ffffff')
+    .style('stroke-width', 2)
+    .style('stroke-dasharray', '4,2')
+    .style('filter', 'url(#glow)');
+  
+  // 复制文本
+  const text = element.select('text');
+  clone.append('text')
+    .attr('x', text.attr('x'))
+    .attr('y', text.attr('y'))
+    .attr('dy', text.attr('dy'))
+    .attr('text-anchor', text.attr('text-anchor'))
+    .text(text.text())
+    .style('font-size', text.style('font-size'))
+    .style('font-weight', 'bold')
+    .style('fill', '#ffffff');
+  
+  // 应用淡入淡出动画
+  clone.transition()
+    .duration(300)
+    .style('opacity', 0.7)
+    .transition()
+    .duration(300)
+    .style('opacity', 0.4)
+    .transition()
+    .duration(300)
+    .style('opacity', 0.7);
+  
+  return clone;
+};
+
+/**
+ * 应用交换动画效果
+ * 该函数处理两个元素之间的交换动画，包括路径动画和元素移动
+ * @param arrayGroup D3选择的数组元素组
+ * @param slowIndex 慢指针索引
+ * @param fastIndex 快指针索引 
+ * @param paths 预先创建的SVG路径元素数组
+ * @param elementWidth 元素宽度
+ * @param elementPadding 元素间距
  */
 export const applySwapAnimation = (
-  container: d3.Selection<SVGGElement, unknown, null, undefined>,
+  arrayGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
   slowIndex: number,
   fastIndex: number,
   paths: SVGPathElement[],
   elementWidth: number,
   elementPadding: number
 ) => {
-  const duration = 1500; // 增加动画时长，更流畅
-  const elementHeight = 50; // 默认元素高度
-  const elements = container.selectAll('.array-element');
-  const slowElement = elements.filter((_, i) => i === slowIndex);
-  const fastElement = elements.filter((_, i) => i === fastIndex);
+  const elementHeight = 50; // 添加默认的元素高度值
+  console.log(`开始交换动画: slow=${slowIndex}, fast=${fastIndex}`);
 
-  // 添加动态渐变色效果
-  const createDynamicGradient = (id: string, colors: string[]) => {
-    const gradient = container.append('defs')
-      .append('linearGradient')
-      .attr('id', id)
-      .attr('x1', '0%')
-      .attr('y1', '0%')
-      .attr('x2', '100%')
-      .attr('y2', '0%');
-    
-    colors.forEach((color, i) => {
-      gradient.append('stop')
-        .attr('offset', `${i * 100 / (colors.length - 1)}%`)
-        .attr('stop-color', color);
-    });
-    
-    // 添加动画效果
-    gradient.append('animateTransform')
-      .attr('attributeName', 'gradientTransform')
-      .attr('type', 'rotate')
-      .attr('from', '0 0.5 0.5')
-      .attr('to', '360 0.5 0.5')
-      .attr('dur', '2s')
-      .attr('repeatCount', 'indefinite');
-      
-    return gradient;
-  };
+  // 关键修复：确认我们是否有正确的交换元素
+  // 查找带有data-swapping属性的元素，这些是在ArrayVisualizerD3Enhanced中标记的
+  const slowElement = arrayGroup.select(`g.array-element[data-swapping="slow"]`);
+  const fastElement = arrayGroup.select(`g.array-element[data-swapping="fast"]`);
 
-  // 创建两种不同的渐变效果
-  createDynamicGradient('swap-gradient-slow', ['#FF416C', '#FF4B2B', '#FF9D6C', '#FF6B6B']);
-  createDynamicGradient('swap-gradient-fast', ['#1A2980', '#26D0CE', '#21D4FD', '#2979FF']);
+  // 记录状态，帮助调试
+  console.log(`查找交换元素: slow=${!slowElement.empty()}, fast=${!fastElement.empty()}`);
 
-  // 创建粒子动画对象 - 增加粒子数量和变化
-  const createParticles = (path: SVGPathElement, gradientId: string) => {
-    const particleGroup = container.append('g')
-      .attr('class', 'particles');
-    
-    const particleCount = 25; // 增加粒子数量
-    const particles: d3.Selection<any, unknown, null, undefined>[] = [];
-    
-    // 多种粒子形状
-    const shapes = [
-      (r: number) => `M 0,-${r} L ${r*0.866},${r*0.5} L -${r*0.866},${r*0.5} Z`, // 三角形
-      (r: number) => `M -${r},-${r} L ${r},-${r} L ${r},${r} L -${r},${r} Z`, // 正方形
-      (r: number) => `M 0,-${r} L ${r*0.587},-${r*0.809} L ${r*0.951},${r*0.309} L ${r*0.587},${r*0.809} L 0,${r} L -${r*0.587},${r*0.809} L -${r*0.951},${r*0.309} L -${r*0.587},-${r*0.809} Z` // 八边形
-    ];
-    
-    for (let i = 0; i < particleCount; i++) {
-      const size = Math.random() * 3 + 2; // 随机大小
-      const shapeIndex = Math.floor(Math.random() * 4); // 随机选择形状
-      
-      if (shapeIndex < 3) {
-        // 使用自定义形状
-        const particle = particleGroup.append('path')
-          .attr('d', shapes[shapeIndex](size))
-          .style('fill', `url(#${gradientId})`)
-          .style('opacity', 0);
-        particles.push(particle);
-      } else {
-        // 圆形粒子
-        const particle = particleGroup.append('circle')
-          .attr('r', size)
-          .style('fill', `url(#${gradientId})`)
-          .style('opacity', 0);
-        particles.push(particle);
-      }
-    }
-    
-    return { group: particleGroup, particles };
-  };
+  // 如果无法找到标记的元素，回退到使用索引查找
+  // 使用更宽松的类型定义
+  let sourceElement: d3.Selection<any, unknown, any, any> = 
+    !slowElement.empty() ? slowElement : arrayGroup.selectAll('.array-element').filter((_, i) => i === slowIndex);
+  let targetElement: d3.Selection<any, unknown, any, any> = 
+    !fastElement.empty() ? fastElement : arrayGroup.selectAll('.array-element').filter((_, i) => i === fastIndex);
 
-  // 创建超炫酷的尾迹效果
-  const createTrail = (path: SVGPathElement, gradientId: string) => {
-    const trailGroup = container.append('g')
-      .attr('class', 'trail');
-    
-    // 主尾迹
-    const trail = trailGroup.append('path')
-      .attr('d', path.getAttribute('d') || '')
-      .style('fill', 'none')
-      .style('stroke', `url(#${gradientId})`)
-      .style('stroke-width', 5)
-      .style('stroke-dasharray', '4,2')
-      .style('opacity', 0)
-      .style('filter', 'url(#glow-intense)');
-    
-    // 添加动画
-    trail.transition()
-      .duration(duration * 0.1)
-      .style('opacity', 0.8)
-      .transition()
-      .duration(duration * 0.9)
-      .styleTween('stroke-dashoffset', function() {
-        const length = path.getTotalLength();
-        return function(t: number) {
-          return `${(1 - t) * length}`;
-        };
-      });
-    
-    return trailGroup;
-  };
+  // 确保我们有可用的元素
+  if (sourceElement.empty() || targetElement.empty()) {
+    console.error("交换动画失败：无法找到源元素或目标元素");
+    return;
+  }
 
-  // 为两个元素创建粒子和尾迹
-  const slowParticles = createParticles(paths[0], 'swap-gradient-slow');
-  const fastParticles = createParticles(paths[1], 'swap-gradient-fast');
+  // 获取要交换的元素的值，用于显示说明文字
+  let sourceValue = 0;
+  let targetValue = 0;
   
-  const slowTrail = createTrail(paths[0], 'swap-gradient-slow');
-  const fastTrail = createTrail(paths[1], 'swap-gradient-fast');
-
-  // 创建更强烈的发光效果
-  container.append('defs')
-    .append('filter')
-    .attr('id', 'glow-intense')
-    .attr('x', '-50%')
-    .attr('y', '-50%')
-    .attr('width', '200%')
-    .attr('height', '200%')
-    .html(`
-      <feGaussianBlur stdDeviation="5" result="blur" />
-      <feFlood flood-color="#ff4b2b" flood-opacity="0.7" result="glow-color-1" />
-      <feComposite in="glow-color-1" in2="blur" operator="in" result="glow-1" />
-      <feFlood flood-color="#2979ff" flood-opacity="0.7" result="glow-color-2" />
-      <feComposite in="glow-color-2" in2="blur" operator="in" result="glow-2" />
-      <feMerge>
-        <feMergeNode in="glow-1" />
-        <feMergeNode in="glow-2" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    `);
-
-  // 元素缩放和旋转动画 - 更复杂的变换
-  slowElement.transition()
-    .duration(duration * 0.2)
-    .style('opacity', 0.95)
-    .attr('transform', `translate(${slowIndex * (elementWidth + elementPadding)},0) scale(1.15) rotate(-5)`)
-    .transition()
-    .duration(duration * 0.8)
-    .attrTween('transform', function() {
-      const path = paths[0];
-      return function(t: number) {
-        // 获取路径上的点
-        const point = path.getPointAtLength(path.getTotalLength() * t);
-        // 添加动态旋转和缩放效果
-        const rotation = Math.sin(t * Math.PI * 4) * 10;
-        const scale = 1 + Math.sin(t * Math.PI * 2) * 0.1;
-        // 根据路径位置平移元素
-        return `translate(${point.x - elementWidth / 2},${point.y - elementHeight / 2}) rotate(${rotation}) scale(${scale})`;
-      };
-    })
-    .on('end', () => {
-      // 设置到最终位置并保持在那里
-      slowElement
-        .transition()
-        .duration(duration * 0.2)
-        .attr('transform', `translate(${fastIndex * (elementWidth + elementPadding)},0) scale(1)`)
-        .style('opacity', 1);
-    });
-
-  fastElement.transition()
-    .duration(duration * 0.2)
-    .style('opacity', 0.95)
-    .attr('transform', `translate(${fastIndex * (elementWidth + elementPadding)},0) scale(1.15) rotate(5)`)
-    .transition()
-    .duration(duration * 0.8)
-    .attrTween('transform', function() {
-      const path = paths[1];
-      return function(t: number) {
-        const point = path.getPointAtLength(path.getTotalLength() * t);
-        const rotation = Math.sin(t * Math.PI * 4) * 10;
-        const scale = 1 + Math.sin(t * Math.PI * 2) * 0.1;
-        return `translate(${point.x - elementWidth / 2},${point.y - elementHeight / 2}) rotate(${rotation}) scale(${scale})`;
-      };
-    })
-    .on('end', () => {
-      // 设置到最终位置并保持在那里
-      fastElement
-        .transition()
-        .duration(duration * 0.2)
-        .attr('transform', `translate(${slowIndex * (elementWidth + elementPadding)},0) scale(1)`)
-        .style('opacity', 1);
-    });
-
-  // 动画粒子沿路径移动 - 每个粒子都有独特的效果
-  slowParticles.particles.forEach((particle, i) => {
-    const delay = i * (duration / slowParticles.particles.length * 0.5);
-    const particleDuration = duration * 0.7 + Math.random() * 300;
-    
-    particle
-      .transition()
-      .delay(delay)
-      .duration(particleDuration)
-      .style('opacity', () => Math.random() * 0.4 + 0.6)
-      .attrTween('transform', function() {
-        return function(t: number) {
-          const pathLength = paths[0].getTotalLength();
-          const point = paths[0].getPointAtLength(pathLength * t);
-          const angle = (t * 720) % 360; // 旋转角度
-          const scale = 0.5 + Math.sin(t * Math.PI * 4) * 0.5; // 缩放效果
-          
-          return `translate(${point.x}, ${point.y}) rotate(${angle}) scale(${scale})`;
-        };
-      })
-      .transition()
-      .duration(200)
-      .style('opacity', 0)
-      .remove();
+  sourceElement.each(function() {
+    const d = d3.select(this).datum() as any;
+    sourceValue = d ? d.value : 0;
+    console.log("源元素数据:", d ? {value: d.value, index: d.index, swapping: d.state?.swapping} : "无数据");
+  });
+  
+  targetElement.each(function() {
+    const d = d3.select(this).datum() as any;
+    targetValue = d ? d.value : 0;
+    console.log("目标元素数据:", d ? {value: d.value, index: d.index, swapping: d.state?.swapping} : "无数据");
   });
 
-  fastParticles.particles.forEach((particle, i) => {
-    const delay = i * (duration / fastParticles.particles.length * 0.5);
-    const particleDuration = duration * 0.7 + Math.random() * 300;
-    
-    particle
-      .transition()
-      .delay(delay)
-      .duration(particleDuration)
-      .style('opacity', () => Math.random() * 0.4 + 0.6)
-      .attrTween('transform', function() {
-        return function(t: number) {
-          const pathLength = paths[1].getTotalLength();
-          const point = paths[1].getPointAtLength(pathLength * t);
-          const angle = (t * 720) % 360;
-          const scale = 0.5 + Math.sin(t * Math.PI * 4) * 0.5;
-          
-          return `translate(${point.x}, ${point.y}) rotate(${angle}) scale(${scale})`;
-        };
-      })
-      .transition()
-      .duration(200)
-      .style('opacity', 0)
-      .remove();
-  });
+  // 添加高亮效果
+  sourceElement
+    .selectAll('rect')
+    .style('stroke', '#0000ff')
+    .style('stroke-width', 3)
+    .style('stroke-dasharray', '5,3');
 
-  // 清理粒子组和尾迹
-  slowParticles.group.transition()
-    .delay(duration)
-    .remove();
+  targetElement
+    .selectAll('rect')
+    .style('stroke', '#0000ff')
+    .style('stroke-width', 3)
+    .style('stroke-dasharray', '5,3');
+
+  // 计算起始位置和目标位置
+  const sourceTransform = sourceElement.attr('transform');
+  const targetTransform = targetElement.attr('transform');
   
-  fastParticles.group.transition()
-    .delay(duration)
-    .remove();
-    
-  slowTrail.transition()
-    .delay(duration)
-    .remove();
-    
-  fastTrail.transition()
-    .delay(duration)
-    .remove();
+  console.log(`元素变换: 源=${sourceTransform}, 目标=${targetTransform}`);
 
-  // 添加爆炸效果
-  const createExplosion = (x: number, y: number, color: string) => {
-    const explosionGroup = container.append('g')
-      .attr('class', 'explosion')
-      .attr('transform', `translate(${x}, ${y})`);
-    
-    // 创建放射状光芒
-    const rayCount = 12;
-    for (let i = 0; i < rayCount; i++) {
-      const angle = (i / rayCount) * 360;
-      const length = Math.random() * 20 + 15;
-      
-      explosionGroup.append('line')
-        .attr('x1', 0)
-        .attr('y1', 0)
-        .attr('x2', length * Math.cos(angle * Math.PI / 180))
-        .attr('y2', length * Math.sin(angle * Math.PI / 180))
-        .style('stroke', color)
-        .style('stroke-width', 2)
-        .style('opacity', 0)
-        .transition()
-        .duration(300)
-        .style('opacity', 0.8)
-        .attr('x2', length * 1.5 * Math.cos(angle * Math.PI / 180))
-        .attr('y2', length * 1.5 * Math.sin(angle * Math.PI / 180))
-        .transition()
-        .duration(200)
-        .style('opacity', 0)
-        .remove();
+  // 改进语言检测：优先从localStorage中获取用户设置的语言
+  let currentLanguage = 'en';
+  try {
+    const savedLanguage = localStorage.getItem('userLanguage');
+    if (savedLanguage) {
+      currentLanguage = savedLanguage;
+    } else if (document.documentElement.lang) {
+      currentLanguage = document.documentElement.lang;
+    } else if (navigator.language) {
+      // 如果浏览器语言以中文开头，则使用中文
+      currentLanguage = navigator.language.startsWith('zh') ? 'zh' : 'en';
     }
-    
-    // 创建圆形波
-    const waveCount = 3;
-    for (let i = 0; i < waveCount; i++) {
-      explosionGroup.append('circle')
-        .attr('r', 2)
-        .style('fill', 'none')
-        .style('stroke', color)
-        .style('stroke-width', 3 - i * 0.5)
-        .style('opacity', 0)
-        .transition()
-        .delay(i * 100)
-        .duration(400)
-        .style('opacity', 0.7)
-        .attr('r', 30 + i * 10)
-        .transition()
-        .duration(300)
-        .style('opacity', 0)
-        .remove();
-    }
-    
-    explosionGroup.transition()
-      .delay(700)
-      .remove();
-  };
-
-  // 在交换结束时添加爆炸效果
-  setTimeout(() => {
-    const slowX = slowIndex * (elementWidth + elementPadding) + elementWidth / 2;
-    const slowY = elementHeight / 2;
-    const fastX = fastIndex * (elementWidth + elementPadding) + elementWidth / 2;
-    const fastY = elementHeight / 2;
-    
-    createExplosion(fastX, slowY, '#FF4B2B');
-    createExplosion(slowX, fastY, '#2979FF');
-  }, duration * 0.8);
-
-  // 添加闪光效果 - 更强烈和动态
-  const addFlashEffect = (index: number, color: string) => {
-    const flash = container.append('rect')
-      .attr('width', elementWidth)
-      .attr('height', elementHeight)
-      .attr('rx', 5)
-      .attr('ry', 5)
-      .attr('x', index * (elementWidth + elementPadding))
-      .attr('y', 0)
+    console.log(`当前语言设置: ${currentLanguage}`);
+  } catch (e) {
+    console.error("无法获取语言设置:", e);
+  }
+  
+  // 直接创建文本标签的辅助函数
+  const createSwapText = (text: string, color: string, yOffset: number) => {
+    return swapTextGroup.append('text')
+      .attr('x', textX)
+      .attr('y', textY + yOffset)
+      .attr('text-anchor', 'middle')
+      .attr('dy', '0em')
+      .attr('class', 'swap-text')
+      .style('font-size', '16px')
+      .style('font-weight', 'bold')
       .style('fill', color)
       .style('opacity', 0)
-      .style('filter', 'url(#glow-intense)');
-    
-    flash.transition()
-      .delay(duration * 0.8)
-      .duration(100)
-      .style('opacity', 0.7)
-      .transition()
-      .duration(300)
-      .style('opacity', 0)
-      .remove();
+      .text(text);
   };
   
-  addFlashEffect(fastIndex, 'rgba(255, 75, 43, 0.7)');
-  addFlashEffect(slowIndex, 'rgba(41, 121, 255, 0.7)');
+  // 添加交换说明文字
+  const swapTextGroup = arrayGroup.append('g')
+    .attr('class', 'swap-text-group');
+  
+  // 计算文字位置 - 两个交换元素的中间位置
+  const getPositionFromTransform = (transformStr: string): {x: number, y: number} => {
+    const match = transformStr.match(/translate\(([^,]+),([^)]+)\)/);
+    if (match && match.length >= 3) {
+      return {
+        x: parseFloat(match[1]) + elementWidth / 2,
+        y: parseFloat(match[2])
+      };
+    }
+    return {x: 0, y: 0};
+  };
+  
+  const sourcePos = getPositionFromTransform(sourceTransform);
+  const targetPos = getPositionFromTransform(targetTransform);
+  const textX = (sourcePos.x + targetPos.x) / 2;
+  const textY = sourcePos.y - 30; // 文字显示在元素上方
+  
+  // 获取正确的本地化文本，确保中英文显示正确
+  const startTextContent = formatTranslation('animation.swapElements', [sourceValue, targetValue], currentLanguage);
+  console.log(`交换开始文本 (${currentLanguage}): ${startTextContent}`);
+  
+  // 添加交换开始文字
+  const startText = createSwapText(startTextContent, '#ff5722', 0);
+  
+  startText.transition()
+    .duration(400)
+    .style('opacity', 1)
+    .transition()
+    .delay(1000)
+    .duration(400)
+    .style('opacity', 0.7);
+
+  // 创建克隆以实现预览效果
+  const createClone = (element: d3.Selection<any, unknown, any, any>) => {
+    const node = element.node();
+    if (!node) return null;
+    const clone = node.cloneNode(true) as SVGGElement;
+    // 添加克隆标识
+    clone.setAttribute('class', 'array-element clone');
+    // 确保克隆体在原始元素之上
+    clone.style.opacity = '0.7';
+    return clone;
+  };
+
+  // 为源和目标创建克隆
+  const sourceClone = createClone(sourceElement);
+  const targetClone = createClone(targetElement);
+  
+  // 如果克隆创建成功，添加到DOM
+  if (sourceClone && targetClone) {
+    arrayGroup.node()?.appendChild(sourceClone);
+    arrayGroup.node()?.appendChild(targetClone);
+
+    // 设置克隆的初始位置
+    d3.select(sourceClone).attr('transform', sourceTransform);
+    d3.select(targetClone).attr('transform', targetTransform);
+
+    // 创建动态渐变
+    const createDynamicGradient = (id: string, color: string) => {
+      const gradientId = `clone-gradient-${id}`;
+      const gradient = arrayGroup.append('defs')
+        .append('linearGradient')
+        .attr('id', gradientId)
+        .attr('x1', '0%')
+        .attr('y1', '0%')
+        .attr('x2', '100%')
+        .attr('y2', '100%');
+      
+      gradient.append('stop')
+        .attr('offset', '0%')
+        .attr('stop-color', color)
+        .attr('stop-opacity', 0.9);
+      
+      gradient.append('stop')
+        .attr('offset', '100%')
+        .attr('stop-color', color)
+        .attr('stop-opacity', 0.5);
+      
+      return gradientId;
+    };
+
+    // 为克隆元素添加特殊效果
+    const sourceGradientId = createDynamicGradient('source', '#4285f4');
+    const targetGradientId = createDynamicGradient('target', '#34a853');
+    
+    d3.select(sourceClone).selectAll('rect')
+      .style('fill', `url(#${sourceGradientId})`)
+      .style('stroke', '#4285f4')
+      .style('stroke-width', 2);
+    
+    d3.select(targetClone).selectAll('rect')
+      .style('fill', `url(#${targetGradientId})`)
+      .style('stroke', '#34a853')
+      .style('stroke-width', 2);
+
+    // 设置动画时长 - 延长到2000毫秒，以便更好地观察
+    const duration = 2000; // 从1000毫秒增加到2000毫秒
+    
+    // 执行克隆元素的路径动画
+    d3.select(sourceClone)
+      .transition()
+      .duration(duration)
+      .attrTween('transform', () => {
+        return function(t: number) {
+          const p = paths[0].getPointAtLength(t * paths[0].getTotalLength());
+          return `translate(${p.x - elementWidth / 2},${p.y - elementHeight / 2})`;
+        };
+      })
+      .on('end', function() {
+        // 移除克隆元素
+        this.remove();
+      });
+    
+    d3.select(targetClone)
+      .transition()
+      .duration(duration)
+      .attrTween('transform', () => {
+        return function(t: number) {
+          const p = paths[1].getPointAtLength(t * paths[1].getTotalLength());
+          return `translate(${p.x - elementWidth / 2},${p.y - elementHeight / 2})`;
+        };
+      })
+      .on('end', function() {
+        this.remove();
+        
+        // 动画结束后，更新原始元素的最终位置
+        // 注意：这里使用了索引值乘以宽度来计算位置
+        sourceElement.attr('transform', targetTransform);
+        targetElement.attr('transform', sourceTransform);
+        
+        // 交换完成后的确认高亮
+        sourceElement
+          .selectAll('rect')
+          .style('stroke', '#00cc00')
+          .style('stroke-width', 2)
+          .style('stroke-dasharray', null);
+        
+        targetElement
+          .selectAll('rect')
+          .style('stroke', '#00cc00')
+          .style('stroke-width', 2)
+          .style('stroke-dasharray', null);
+
+        // 添加交换完成文字
+        const completeTextContent = formatTranslation('animation.elementsSwapped', [sourceValue, targetValue], currentLanguage);
+        console.log(`交换完成文本 (${currentLanguage}): ${completeTextContent}`);
+        
+        const completeText = createSwapText(completeTextContent, '#4caf50', 25);
+        
+        completeText.transition()
+          .duration(400) // 延长文字淡入时间
+          .style('opacity', 1)
+          .transition()
+          .delay(1200) // 延长文字显示时间
+          .duration(400) // 延长文字淡出时间
+          .style('opacity', 0)
+          .on('end', function() {
+            // 动画完全结束后移除文字组
+            swapTextGroup.remove();
+          });
+
+        console.log("交换动画完成");
+      });
+  } else {
+    console.error("无法创建克隆元素");
+  }
 };
 
 /**
@@ -444,4 +492,4 @@ export const applyElementAnimation = (
       .duration(300)
       .attr("transform", "translate(0, 0)");
   }
-}; 
+};

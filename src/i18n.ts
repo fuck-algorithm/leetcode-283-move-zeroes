@@ -76,6 +76,12 @@ const enTranslation = {
     "elementMoved": "{0} moved to position {1}",
     "movingPointers": "Moving pointers",
     "zeroesMoveComplete": "Completed moving zeros"
+  },
+  "animation": {
+    "swapping": "Swapping Elements",
+    "swapComplete": "Swap Complete",
+    "swapElements": "Swap {0} ↔ {1}",
+    "elementsSwapped": "{0} ↔ {1} Swap Complete"
   }
 };
 
@@ -152,6 +158,12 @@ const zhTranslation = {
     "elementMoved": "{0} 已移动到位置 {1}",
     "movingPointers": "移动指针",
     "zeroesMoveComplete": "完成移动零元素"
+  },
+  "animation": {
+    "swapping": "交换元素",
+    "swapComplete": "交换完成",
+    "swapElements": "交换 {0} ↔ {1}",
+    "elementsSwapped": "{0} ↔ {1} 交换完成"
   }
 };
 

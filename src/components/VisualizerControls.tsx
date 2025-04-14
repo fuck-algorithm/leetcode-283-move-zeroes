@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useCustomTranslation } from '../i18n';
 import './VisualizerControls.css';
 
+// 本地存储键名
+const SPEED_STORAGE_KEY = 'visualization_speed';
+
 // 预设示例
 const PRESETS = [
   { name: 'presets.example1', array: [0, 1, 0, 3, 12] },
@@ -9,7 +12,13 @@ const PRESETS = [
   { name: 'presets.allZeros', array: [0, 0, 0, 0, 0] },
   { name: 'presets.noZeros', array: [1, 2, 3, 4, 5] },
   { name: 'presets.zerosAtEnd', array: [1, 2, 3, 4, 0, 0] },
-  { name: 'presets.longArray', array: [0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0] },
+  { name: 'presets.longArray', array: [
+    0, 5, 0, 7, 9, 0, 1, 0, 8, 0, 
+    2, 0, 3, 0, 10, 0, 4, 6, 0, 11, 
+    0, 15, 0, 17, 0, 12, 0, 13, 0, 19, 
+    0, 20, 0, 22, 0, 16, 0, 14, 0, 18, 
+    21, 0, 25, 0, 23, 0, 24, 0, 26, 0
+  ] }, // 50个元素的长数组，包含25个零
 ];
 
 interface VisualizerControlsProps {
@@ -20,8 +29,18 @@ interface VisualizerControlsProps {
 const VisualizerControls: React.FC<VisualizerControlsProps> = ({ onArrayChange, onSpeedChange }) => {
   const { t } = useCustomTranslation();
   const [inputArray, setInputArray] = useState<string>('');
-  const [speed, setSpeed] = useState<number>(1);
   const [error, setError] = useState<string>('');
+  
+  // 从localStorage读取之前保存的速度值或使用默认值1.0
+  const [speed, setSpeed] = useState<number>(() => {
+    try {
+      const savedSpeed = localStorage.getItem(SPEED_STORAGE_KEY);
+      return savedSpeed ? parseFloat(savedSpeed) : 1.0;
+    } catch (e) {
+      console.error('Error reading speed from localStorage:', e);
+      return 1.0;
+    }
+  });
   
   // 生成随机数组
   const generateRandomArray = () => {
@@ -39,9 +58,11 @@ const VisualizerControls: React.FC<VisualizerControlsProps> = ({ onArrayChange, 
     setError('');
   };
   
-  // 组件初始化时生成随机数据
+  // 组件初始化时生成随机数据并设置初始速度
   useEffect(() => {
     generateRandomArray();
+    // 初始化时将保存的速度值传递给父组件
+    onSpeedChange(speed);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
@@ -56,6 +77,13 @@ const VisualizerControls: React.FC<VisualizerControlsProps> = ({ onArrayChange, 
     const newSpeed = parseFloat(e.target.value);
     setSpeed(newSpeed);
     onSpeedChange(newSpeed);
+    
+    // 保存到localStorage
+    try {
+      localStorage.setItem(SPEED_STORAGE_KEY, newSpeed.toString());
+    } catch (e) {
+      console.error('Error saving speed to localStorage:', e);
+    }
   };
   
   // 应用数组

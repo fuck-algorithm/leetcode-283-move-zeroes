@@ -7,6 +7,7 @@ import './VisualizerPage.css';
 const VisualizerPage: React.FC = () => {
   const { t, i18n } = useCustomTranslation();
   const [array, setArray] = useState<number[]>([0, 1, 0, 3, 12]);
+  const [speed, setSpeed] = useState<number>(1.0); // 添加速度状态
   
   // 处理数组变化
   const handleArrayChange = (newArray: number[]) => {
@@ -15,7 +16,8 @@ const VisualizerPage: React.FC = () => {
   
   // 处理速度变化
   const handleSpeedChange = (newSpeed: number) => {
-    // 暂时不使用速度控制
+    setSpeed(newSpeed);
+    console.log(`设置速度: ${newSpeed}x`);
   };
   
   // 根据当前语言决定链接地址
@@ -46,6 +48,7 @@ const VisualizerPage: React.FC = () => {
         
         <VisualizationContainer 
           inputArray={array}
+          speed={speed}
         />
       </div>
     </div>

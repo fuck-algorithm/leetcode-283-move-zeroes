@@ -79,11 +79,21 @@ export const generateAlgorithmStepsD3 = (initialArray: number[]): AlgorithmStepD
 
       if (slow !== fast) {
         // 准备交换
-        newElementData[slow].state.swapping = true;
-        newElementData[fast].state.swapping = true;
+        const swapPrepElementData = [...newElementData];
+        
+        // 正确标记要交换的元素 - 使用更明确的标记
+        swapPrepElementData.forEach((el, idx) => {
+          if (idx === slow || idx === fast) {
+            el.state.swapping = true;
+            console.log(`标记元素${idx}为交换状态, 值=${el.value}`);
+          } else {
+            el.state.swapping = false;
+          }
+        });
+        
         steps.push({
           array,
-          elementData: newElementData,
+          elementData: swapPrepElementData,
           slow,
           fast,
           action: 'swap',
@@ -93,30 +103,19 @@ export const generateAlgorithmStepsD3 = (initialArray: number[]): AlgorithmStepD
 
         // 执行交换
         [array[slow], array[fast]] = [array[fast], array[slow]];
-        const swappedElementData = newElementData.map(el => ({
+        
+        // 创建交换后的元素数据
+        const swappedElementData = swapPrepElementData.map(el => ({
           ...el,
           state: { ...el.state, swapping: false }
         }));
 
-        // 修复交换逻辑 - 正确交换元素数据
-        // 保存交换前的值以便正确更新
-        const slowValue = array[slow];
-        const fastValue = array[fast];
-
-        // 直接交换这两个元素的完整数据
-        const tempElementData = { ...swappedElementData[slow] };
-        swappedElementData[slow] = { 
-          ...swappedElementData[fast], 
-          value: slowValue,  // 使用正确的交换后的值
-          isZero: slowValue === 0,
-          index: slow  // 保持原始索引不变
-        };
-        swappedElementData[fast] = { 
-          ...tempElementData, 
-          value: fastValue,  // 使用正确的交换后的值
-          isZero: fastValue === 0,
-          index: fast  // 保持原始索引不变
-        };
+        // 更新交换后的元素值，但保持它们的索引不变
+        swappedElementData[slow].value = array[slow];
+        swappedElementData[slow].isZero = array[slow] === 0;
+        
+        swappedElementData[fast].value = array[fast];
+        swappedElementData[fast].isZero = array[fast] === 0;
 
         steps.push({
           array: [...array], // 创建数组的副本

@@ -93,6 +93,48 @@ const ArrayVisualizerD3Enhanced: React.FC<ArrayVisualizerD3EnhancedProps> = ({ s
 
     // 如果是交换阶段，执行交换动画
     if (step.phase === 'swap-start') {
+      // 打印当前状态，辅助调试
+      console.log("交换动画 - 当前步骤:", {
+        slow: step.slow,
+        fast: step.fast,
+        phase: step.phase,
+        message: step.message
+      });
+      
+      // 检查数据绑定状态 - 确保正确设置了swapping状态
+      step.elementData.forEach((d, i) => {
+        if (d.state.swapping) {
+          console.log(`元素${i}(值=${d.value})标记为swapping=true`);
+        }
+      });
+      
+      // 根据elementData状态选择要交换的元素，而不是根据slow/fast索引
+      // 这样可以确保我们选择的是正确的数据对象，无论它们在DOM中的物理位置如何
+      const swappingElements = elements.filter(d => d.state.swapping);
+      
+      // 获取实际交换的元素
+      const elementNodesWithSwap = swappingElements.nodes();
+      if (elementNodesWithSwap.length !== 2) {
+        console.error(`警告: 标记为交换的元素数量不是2，而是${elementNodesWithSwap.length}`);
+      }
+      
+      // 获取两个交换元素的实际位置和DOM索引
+      const getElementTransform = (el: Element) => {
+        const transform = d3.select(el).attr('transform');
+        const match = transform.match(/translate\(([^,]+),([^)]+)\)/);
+        if (match && match.length >= 3) {
+          return {x: parseFloat(match[1]), y: parseFloat(match[2])};
+        }
+        return null;
+      };
+      
+      // 获取所有元素位置信息，用于调试
+      const allPositions = elements.nodes().map((node, i) => {
+        const pos = getElementTransform(node);
+        return {index: i, pos, swapping: step.elementData[i].state.swapping};
+      });
+      console.log("所有元素位置信息:", allPositions);
+      
       const paths = createSwapPaths(
         step.slow * (elementWidth + elementPadding),
         step.fast * (elementWidth + elementPadding),
@@ -195,11 +237,50 @@ const ArrayVisualizerD3Enhanced: React.FC<ArrayVisualizerD3EnhancedProps> = ({ s
         }
       }
 
-      // 高亮将要交换的元素
-      elements.filter((d, i) => i === step.slow || i === step.fast)
+      // 高亮将要交换的元素 - 使用swapping标记而不是索引
+      swappingElements
         .selectAll('rect')
         .style('filter', 'url(#glow)');
 
+      // 重要修改：对元素清晰标记并查找正确的交换元素
+      // 1. 首先清除所有元素的交换标记
+      elements.attr('data-swapping', null);
+      
+      // 2. 直接在DOM中标记需要交换的元素
+      elements.each(function(d, i) {
+        if (d.state.swapping) {
+          if (i === step.slow) {
+            d3.select(this).attr('data-swapping', 'slow');
+            console.log(`已标记slow元素，索引=${i}, 值=${d.value}`);
+          } else if (i === step.fast) {
+            d3.select(this).attr('data-swapping', 'fast');
+            console.log(`已标记fast元素，索引=${i}, 值=${d.value}`);
+          }
+        }
+      });
+      
+      // 3. 并为交换组添加自定义属性，使其更容易识别
+      swappingElements.attr('class', d => {
+        const baseClass = `array-element ${d.isZero ? 'zero-element' : ''}`;
+        return baseClass + ' swapping-element';
+      });
+
+      // 确保找到交换元素
+      const slowEl = arrayGroup.select('g.array-element[data-swapping="slow"]');
+      const fastEl = arrayGroup.select('g.array-element[data-swapping="fast"]');
+      
+      if (slowEl.empty() || fastEl.empty()) {
+        console.error("找不到交换元素，改用索引查找");
+        
+        // 备用：如果找不到标记的元素，使用索引位置
+        const slowNode = elements.nodes()[step.slow];
+        const fastNode = elements.nodes()[step.fast];
+        
+        if (slowNode) d3.select(slowNode).attr('data-swapping', 'slow');
+        if (fastNode) d3.select(fastNode).attr('data-swapping', 'fast');
+      }
+
+      // 使用正确的DOM索引传递给交换动画函数
       applySwapAnimation(
         arrayGroup,
         step.slow,
