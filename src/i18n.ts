@@ -30,7 +30,13 @@ const enTranslation = {
     "apply": "Apply",
     "speed": "Speed",
     "random": "Random",
-    "inputPlaceholder": "Enter array, e.g.: 0,1,0,3,12"
+    "inputPlaceholder": "Enter array, e.g.: 0,1,0,3,12",
+    "shortcuts": {
+      "spaceKey": "Space",
+      "leftArrow": "←",
+      "rightArrow": "→",
+      "rKey": "R"
+    }
   },
   "language": {
     "change": "Change Language",
@@ -112,7 +118,13 @@ const zhTranslation = {
     "apply": "应用",
     "speed": "速度",
     "random": "随机",
-    "inputPlaceholder": "输入数组，例如：0,1,0,3,12"
+    "inputPlaceholder": "输入数组，例如：0,1,0,3,12",
+    "shortcuts": {
+      "spaceKey": "空格",
+      "leftArrow": "←",
+      "rightArrow": "→",
+      "rKey": "R"
+    }
   },
   "language": {
     "change": "切换语言",

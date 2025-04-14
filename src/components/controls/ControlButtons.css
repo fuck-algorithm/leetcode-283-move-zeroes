@@ -28,6 +28,14 @@
   font-size: 16px;
 }
 
+/* 快捷键提示样式 */
+.shortcut-hint {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: normal;
+  margin-left: 3px;
+}
+
 .control-button:hover {
   background-color: #4a5061;
   transform: translateY(-2px);
@@ -68,6 +76,10 @@
   transform: none;
 }
 
+.control-button:disabled .shortcut-hint {
+  color: rgba(136, 136, 136, 0.7);
+}
+
 @media (max-width: 768px) {
   .controls {
     gap: 4px;
@@ -81,6 +93,10 @@
   .button-icon {
     font-size: 14px;
   }
+  
+  .shortcut-hint {
+    font-size: 8px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -92,5 +108,10 @@
   
   .button-icon {
     font-size: 12px;
+  }
+  
+  .shortcut-hint {
+    font-size: 7px;
+    margin-left: 2px;
   }
 } 
