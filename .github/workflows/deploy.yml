@@ -16,15 +16,27 @@ jobs:
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20' # 使用更新的Node.js版本
           cache: 'npm'
+      
+      - name: Debug Environment
+        run: |
+          node --version
+          npm --version
+          ls -la
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm config set legacy-peer-deps true
+          npm install --no-fund --no-audit --prefer-offline
+        env:
+          CI: true
 
       - name: Build
         run: npm run build
