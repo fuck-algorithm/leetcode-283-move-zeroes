@@ -1,0 +1,40 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # 明确指定需要写入权限
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }} # 确保不会同时运行多个相同的工作流程
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          CI: false # 避免将警告视为错误
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build # React 默认的构建输出目录
+          branch: gh-pages # 部署到的分支
+          clean: true # 清理旧文件
+          token: ${{ secrets.GITHUB_TOKEN }} # 使用GitHub自动生成的token 
