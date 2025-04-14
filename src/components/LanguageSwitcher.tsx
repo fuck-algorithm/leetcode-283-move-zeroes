@@ -18,6 +18,7 @@ const LanguageSwitcher: React.FC = () => {
       right: '70px',
       display: 'flex',
       alignItems: 'center',
+      height: '31px',
       zIndex: 1000
     }}>
       <select
@@ -29,7 +30,8 @@ const LanguageSwitcher: React.FC = () => {
           borderRadius: '4px',
           border: '1px solid #ccc',
           backgroundColor: '#2c3e50',
-          color: '#fff'
+          color: '#fff',
+          height: '30px'
         }}
       >
         <option value="en">{t('language.en')}</option>
