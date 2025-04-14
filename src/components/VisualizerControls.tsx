@@ -72,6 +72,13 @@ const VisualizerControls: React.FC<VisualizerControlsProps> = ({ onArrayChange, 
     setError('');
   };
   
+  // 处理输入框按键事件
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      applyArray();
+    }
+  };
+  
   // 处理速度变化
   const handleSpeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSpeed = parseFloat(e.target.value);
@@ -133,6 +140,7 @@ const VisualizerControls: React.FC<VisualizerControlsProps> = ({ onArrayChange, 
               type="text"
               value={inputArray}
               onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
               placeholder={t('controls.inputPlaceholder')}
             />
             <button onClick={applyArray}>{t('controls.apply')}</button>
