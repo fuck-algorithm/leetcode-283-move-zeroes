@@ -4,6 +4,7 @@ import './App.css';
 import VisualizerPage from './components/VisualizerPage';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import GithubLink from './components/GithubLink';
+import BackToList from './components/BackToList';
 
 function App() {
   const { t } = useCustomTranslation();
@@ -26,6 +27,7 @@ function App() {
   return (
     <div className="App">
       {/* 右上角工具栏 */}
+      <BackToList />
       <GithubLink />
       <LanguageSwitcher />
       

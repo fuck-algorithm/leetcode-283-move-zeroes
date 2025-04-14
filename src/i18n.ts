@@ -7,7 +7,8 @@ const enTranslation = {
   "app": {
     "title": "Move Zeroes Algorithm Visualization",
     "description": "A visualization of LeetCode 283 - Move Zeroes",
-    "viewSource": "View Source Code"
+    "viewSource": "View Source Code",
+    "backToList": "Back to Hot 100"
   },
   "algorithm": {
     "description": "Given an array nums, write a function to move all 0's to the end of it while maintaining the relative order of the non-zero elements.",
@@ -82,7 +83,8 @@ const zhTranslation = {
   "app": {
     "title": "移动零算法可视化",
     "description": "力扣 283 题 - 移动零 的算法可视化",
-    "viewSource": "查看源代码"
+    "viewSource": "查看源代码",
+    "backToList": "返回 Hot 100"
   },
   "algorithm": {
     "description": "给定一个数组 nums，编写一个函数将所有 0 移动到数组的末尾，同时保持非零元素的相对顺序。",
