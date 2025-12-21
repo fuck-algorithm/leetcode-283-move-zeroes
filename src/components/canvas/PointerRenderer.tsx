@@ -27,8 +27,8 @@ const PointerRenderer: React.FC<PointerRendererProps> = ({
   layout,
 }) => {
   const { elementWidth, elementHeight, spacing, startX, startY } = layout;
-  const pointerSize = 24;
-  const pointerOffset = 35;
+  const pointerSize = 28;
+  const pointerOffset = 50; // 增大指针与数组的距离
 
   // 计算指针位置
   const getPointerX = (index: number) => startX + index * (elementWidth + spacing) + elementWidth / 2;

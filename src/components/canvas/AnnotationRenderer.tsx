@@ -29,7 +29,7 @@ const AnnotationRenderer: React.FC<AnnotationRendererProps> = ({
 }) => {
   const { startX, startY, totalWidth, elementHeight, elementWidth, spacing } = layout;
   const centerX = startX + totalWidth / 2;
-  const annotationY = startY + elementHeight + 70;
+  const annotationY = startY + elementHeight + 100; // 增大标注与数组的距离
 
   // 获取元素的X坐标
   const getElementX = (index: number) => startX + index * (elementWidth + spacing) + elementWidth / 2;
@@ -43,10 +43,10 @@ const AnnotationRenderer: React.FC<AnnotationRendererProps> = ({
       return null;
     }
 
-    const fromX = startX + annotation.fromIndex * (elementWidth + spacing) - 5;
-    const toX = startX + annotation.toIndex * (elementWidth + spacing) + elementWidth + 5;
+    const fromX = startX + annotation.fromIndex * (elementWidth + spacing) - 8;
+    const toX = startX + annotation.toIndex * (elementWidth + spacing) + elementWidth + 8;
     const width = toX - fromX;
-    const regionY = startY - 45;
+    const regionY = startY - 60; // 增大区域标注的偏移
 
     return (
       <g key={`region-${index}`} className="region-annotation">
@@ -55,7 +55,7 @@ const AnnotationRenderer: React.FC<AnnotationRendererProps> = ({
           x={fromX}
           y={regionY}
           width={width}
-          height={elementHeight + 60}
+          height={elementHeight + 80}
           rx={8}
           fill={annotation.color || '#f3f4f6'}
           opacity={0.3}
@@ -64,7 +64,7 @@ const AnnotationRenderer: React.FC<AnnotationRendererProps> = ({
         {annotation.text && (
           <text
             x={fromX + width / 2}
-            y={regionY - 8}
+            y={regionY - 10}
             textAnchor="middle"
             fill={annotation.color || '#6b7280'}
             fontSize={11}
@@ -85,11 +85,11 @@ const AnnotationRenderer: React.FC<AnnotationRendererProps> = ({
 
     const fromX = getElementX(annotation.fromIndex);
     const toX = getElementX(annotation.toIndex);
-    const arrowY = startY + elementHeight + 45;
+    const arrowY = startY + elementHeight + 60; // 增大箭头标注的偏移
 
     // 创建弯曲路径
     const midX = (fromX + toX) / 2;
-    const curveHeight = 15;
+    const curveHeight = 20;
     const path = `M ${fromX} ${arrowY} Q ${midX} ${arrowY + curveHeight} ${toX} ${arrowY}`;
 
     return (
@@ -119,7 +119,7 @@ const AnnotationRenderer: React.FC<AnnotationRendererProps> = ({
         {annotation.text && (
           <text
             x={midX}
-            y={arrowY + curveHeight + 15}
+            y={arrowY + curveHeight + 18}
             textAnchor="middle"
             fill={annotation.color || '#f59e0b'}
             fontSize={11}
@@ -139,17 +139,17 @@ const AnnotationRenderer: React.FC<AnnotationRendererProps> = ({
     }
 
     const x = getElementX(annotation.fromIndex);
-    const y = startY - 55;
+    const y = startY - 75; // 增大比较标注的偏移
 
     return (
       <g key={`comparison-${index}`} className="comparison-annotation">
         {/* 比较气泡 */}
         <rect
-          x={x - 50}
-          y={y - 12}
-          width={100}
-          height={24}
-          rx={12}
+          x={x - 55}
+          y={y - 14}
+          width={110}
+          height={28}
+          rx={14}
           fill="#fef3c7"
           stroke="#f59e0b"
           strokeWidth={1}
@@ -166,7 +166,7 @@ const AnnotationRenderer: React.FC<AnnotationRendererProps> = ({
         </text>
         {/* 指向箭头 */}
         <polygon
-          points={`${x - 6},${y + 12} ${x + 6},${y + 12} ${x},${y + 20}`}
+          points={`${x - 6},${y + 14} ${x + 6},${y + 14} ${x},${y + 24}`}
           fill="#fef3c7"
           stroke="#f59e0b"
           strokeWidth={1}
@@ -181,7 +181,7 @@ const AnnotationRenderer: React.FC<AnnotationRendererProps> = ({
       return null;
     }
 
-    const y = annotation.position === 'top' ? startY - 65 : annotationY + 45;
+    const y = annotation.position === 'top' ? startY - 85 : annotationY + 55; // 增大标签偏移
 
     return (
       <g key={`label-${index}`} className="label-annotation">
@@ -265,19 +265,19 @@ const AnnotationRenderer: React.FC<AnnotationRendererProps> = ({
       {step.action === 'complete' && (
         <g>
           <rect
-            x={centerX - 80}
-            y={annotationY - 55}
-            width={160}
-            height={32}
-            rx={16}
+            x={centerX - 90}
+            y={annotationY - 65}
+            width={180}
+            height={36}
+            rx={18}
             fill={COLORS.secondary}
           />
           <text
             x={centerX}
-            y={annotationY - 34}
+            y={annotationY - 42}
             textAnchor="middle"
             fill={COLORS.textInverse}
-            fontSize={14}
+            fontSize={15}
             fontWeight={600}
           >
             ✓ 算法执行完成
@@ -290,10 +290,10 @@ const AnnotationRenderer: React.FC<AnnotationRendererProps> = ({
         <g className="swap-indicator">
           <text
             x={centerX}
-            y={startY - 75}
+            y={startY - 100}
             textAnchor="middle"
             fill="#ef4444"
-            fontSize={16}
+            fontSize={18}
             fontWeight={700}
           >
             ↔ 交换中 ↔

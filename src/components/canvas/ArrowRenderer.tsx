@@ -39,14 +39,14 @@ const ArrowRenderer: React.FC<ArrowRendererProps> = ({
 
   const fromX = getElementCenterX(fromIndex);
   const toX = getElementCenterX(toIndex);
-  const curveHeight = 35;
+  const curveHeight = 50; // 增大箭头弧度高度
 
   // 上方箭头路径（从 from 到 to）
   const midX = (fromX + toX) / 2;
-  const topPath = `M ${fromX} ${startY - 8} Q ${midX} ${startY - curveHeight - 20} ${toX} ${startY - 8}`;
+  const topPath = `M ${fromX} ${startY - 12} Q ${midX} ${startY - curveHeight - 30} ${toX} ${startY - 12}`;
   
   // 下方箭头路径（从 to 到 from）
-  const bottomPath = `M ${toX} ${startY + elementHeight + 8} Q ${midX} ${startY + elementHeight + curveHeight + 20} ${fromX} ${startY + elementHeight + 8}`;
+  const bottomPath = `M ${toX} ${startY + elementHeight + 12} Q ${midX} ${startY + elementHeight + curveHeight + 30} ${fromX} ${startY + elementHeight + 12}`;
 
   // 动画效果
   useEffect(() => {
@@ -151,7 +151,7 @@ const ArrowRenderer: React.FC<ArrowRendererProps> = ({
       <g>
         <rect
           x={midX - 30}
-          y={startY + elementHeight + curveHeight + 25}
+          y={startY + elementHeight + curveHeight + 40}
           width={60}
           height={22}
           rx={11}
@@ -160,7 +160,7 @@ const ArrowRenderer: React.FC<ArrowRendererProps> = ({
         />
         <text
           x={midX}
-          y={startY + elementHeight + curveHeight + 40}
+          y={startY + elementHeight + curveHeight + 55}
           textAnchor="middle"
           fill="#ffffff"
           fontSize={12}
@@ -175,14 +175,14 @@ const ArrowRenderer: React.FC<ArrowRendererProps> = ({
         {/* 左侧元素值 */}
         <circle
           cx={fromX}
-          cy={startY - curveHeight - 30}
+          cy={startY - curveHeight - 45}
           r={14}
           fill={arrowColor}
           opacity={0.8}
         />
         <text
           x={fromX}
-          y={startY - curveHeight - 25}
+          y={startY - curveHeight - 40}
           textAnchor="middle"
           fill="#ffffff"
           fontSize={11}
@@ -194,14 +194,14 @@ const ArrowRenderer: React.FC<ArrowRendererProps> = ({
         {/* 右侧元素值 */}
         <circle
           cx={toX}
-          cy={startY - curveHeight - 30}
+          cy={startY - curveHeight - 45}
           r={14}
           fill={arrowColor}
           opacity={0.8}
         />
         <text
           x={toX}
-          y={startY - curveHeight - 25}
+          y={startY - curveHeight - 40}
           textAnchor="middle"
           fill="#ffffff"
           fontSize={11}

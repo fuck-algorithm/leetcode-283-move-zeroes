@@ -28,12 +28,13 @@ const D3Canvas: React.FC<D3CanvasProps> = ({
     if (!step) return null;
 
     const arrayLength = step.array.length;
-    const elementWidth = Math.min(60, (width - 100) / arrayLength);
-    const elementHeight = 50;
-    const spacing = 10;
+    // 增大元素尺寸和间距，让布局更分散
+    const elementWidth = Math.min(80, (width - 200) / arrayLength);
+    const elementHeight = 60;
+    const spacing = 25; // 增大元素间距
     const totalWidth = arrayLength * (elementWidth + spacing) - spacing;
     const startX = (width - totalWidth) / 2;
-    const startY = height / 2 - elementHeight / 2;
+    const startY = height / 2 - elementHeight / 2 + 20; // 稍微下移，给指针留更多空间
 
     return {
       elementWidth,
