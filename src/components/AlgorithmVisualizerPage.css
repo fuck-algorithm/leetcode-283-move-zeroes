@@ -1,0 +1,120 @@
+/**
+ * 算法可视化主页面样式
+ * 单屏幕布局，无滚动
+ */
+
+.algorithm-visualizer-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: #f9fafb;
+}
+
+/* 头部区域 */
+.header-section {
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  position: relative;
+}
+
+.back-link {
+  font-size: 13px;
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.back-link:hover {
+  color: #2563eb;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.explanation-btn {
+  padding: 6px 12px;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #1f2937;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.explanation-btn:hover {
+  background-color: #e5e7eb;
+}
+
+/* 主内容区域 */
+.main-section {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  padding: 12px;
+  gap: 12px;
+}
+
+/* 代码展示区域 */
+.code-section {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 画布区域 */
+.canvas-section {
+  flex: 1;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+/* 控制区域 */
+.control-section {
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* 响应式调整 */
+@media (max-width: 900px) {
+  .main-section {
+    flex-direction: column;
+  }
+
+  .code-section {
+    width: 100%;
+    max-height: 200px;
+  }
+
+  .canvas-section {
+    flex: 1;
+    min-height: 200px;
+  }
+}
+
+/* 覆盖 GitHubBadge 的固定定位 */
+.header-actions .github-badge {
+  position: static;
+}

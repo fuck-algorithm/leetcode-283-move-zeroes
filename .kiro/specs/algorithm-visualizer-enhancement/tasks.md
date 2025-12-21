@@ -1,0 +1,228 @@
+# Implementation Plan
+
+- [x] 1. Set up project structure and core types
+  - [x] 1.1 Create type definitions in src/types/index.ts
+    - Define AlgorithmStep, StepAction, CodeLineBinding, VariableSnapshot interfaces
+    - Define SupportedLanguage type and validation types
+    - Define IndexedDB cache types
+    - _Requirements: 9.1, 9.2_
+  - [x] 1.2 Create color scheme utility in src/utils/colorScheme.ts
+    - Define coordinated color palette without purple
+    - Export color constants for array elements (gray for zero, blue for non-zero)
+    - _Requirements: 10.2, 6.3_
+  - [ ]* 1.3 Write property test for color scheme
+    - **Property 13: No Purple Color Constraint**
+    - **Validates: Requirements 10.2**
+
+- [x] 2. Implement IndexedDB service and caching
+  - [x] 2.1 Create IndexedDBService in src/services/IndexedDBService.ts
+    - Implement database initialization with stores for preferences and cache
+    - Implement get/set methods with expiration support
+    - Implement fallback to in-memory storage if IndexedDB unavailable
+    - _Requirements: 2.4, 5.4, 7.10_
+  - [x] 2.2 Create useIndexedDB hook in src/hooks/useIndexedDB.ts
+    - Wrap IndexedDBService for React component usage
+    - Handle loading states and errors
+    - _Requirements: 2.4, 5.4, 7.10_
+  - [ ]* 2.3 Write property tests for IndexedDB caching
+    - **Property 3: IndexedDB Cache Expiration**
+    - **Validates: Requirements 2.4, 2.5**
+  - [ ]* 2.4 Write property test for preference persistence
+    - **Property 4: Language Preference Persistence Round-Trip**
+    - **Property 5: Speed Preference Persistence Round-Trip**
+    - **Validates: Requirements 5.4, 7.10**
+
+- [x] 3. Implement validation service
+  - [x] 3.1 Create ValidationService in src/services/ValidationService.ts
+    - Implement parseInput to convert string to number array
+    - Implement validateArray for length and value constraints
+    - Return ValidationResult with error messages
+    - _Requirements: 4.2, 4.3, 4.4, 4.5_
+  - [ ]* 3.2 Write property test for input validation
+    - **Property 1: Input Validation Correctness**
+    - **Validates: Requirements 4.2, 4.3, 4.4, 4.5**
+
+- [x] 4. Implement step generator and code line mapper
+  - [x] 4.1 Create stepGenerator in src/utils/stepGenerator.ts
+    - Generate detailed steps for move zeroes algorithm
+    - Include init, compare, swap, move_slow, move_fast, complete actions
+    - Attach variable snapshots to each step
+    - _Requirements: 9.1, 9.5_
+  - [x] 4.2 Create codeLineMapper in src/utils/codeLineMapper.ts
+    - Define code strings for Java, Python, Golang, JavaScript
+    - Map each step action to corresponding line numbers per language
+    - _Requirements: 9.2, 9.3_
+  - [ ]* 4.3 Write property tests for step generation
+    - **Property 11: Step Generation Completeness**
+    - **Validates: Requirements 9.1**
+  - [ ]* 4.4 Write property test for step-code binding
+    - **Property 6: Step-Code Line Binding Consistency**
+    - **Validates: Requirements 5.5, 9.2, 9.3, 9.4**
+
+- [ ] 5. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 6. Implement header components
+  - [x] 6.1 Create TitleBar component in src/components/header/TitleBar.tsx
+    - Display "283. 移动零" title centered
+    - Add "返回 LeetCode Hot 100" link on left (opens in new tab)
+    - Title clicks open LeetCode problem page in new tab
+    - Set document.title on mount
+    - _Requirements: 1.1, 1.2, 1.3_
+  - [x] 6.2 Create GitHubBadge component in src/components/header/GitHubBadge.tsx
+    - Display GitHub icon in top-right
+    - Fetch and display star count using GitHub API
+    - Use IndexedDB cache with 1-hour expiration
+    - Show tooltip on hover
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7_
+  - [x] 6.3 Create GitHubAPIService in src/services/GitHubAPIService.ts
+    - Fetch star count from GitHub API
+    - Handle errors and return cached/default values
+    - _Requirements: 2.3, 2.5, 2.6_
+  - [x] 6.4 Create AlgorithmExplanation component in src/components/header/AlgorithmExplanation.tsx
+    - Modal dialog with algorithm explanation
+    - Close on outside click or Escape key
+    - Display two-pointer swap algorithm with O(n) time, O(1) space
+    - _Requirements: 3.1, 3.2, 3.3, 3.4_
+  - [x] 6.5 Create DataInput component in src/components/header/DataInput.tsx
+    - Input field for custom data
+    - Preset example buttons (flat layout)
+    - Random generate button
+    - Validation and error display
+    - _Requirements: 4.1, 4.2, 4.3, 4.6, 4.7, 4.8, 4.9_
+  - [ ]* 6.6 Write property test for random array generation
+    - **Property 2: Random Array Generation Validity**
+    - **Validates: Requirements 4.8, 4.9**
+
+- [x] 7. Implement code display components
+  - [x] 7.1 Create LanguageSelector component in src/components/code/LanguageSelector.tsx
+    - Dropdown/tabs for Java, Python, Golang, JavaScript
+    - Persist selection to IndexedDB
+    - _Requirements: 5.2, 5.3, 5.4_
+  - [x] 7.2 Create CodeDisplay component in src/components/code/CodeDisplay.tsx
+    - Display code with syntax highlighting
+    - Show line numbers
+    - Highlight current step's code lines
+    - Display variable values inline after relevant lines
+    - Proper sizing to avoid scrollbars
+    - _Requirements: 5.1, 5.5, 5.6, 5.7, 5.8, 5.9_
+  - [ ]* 7.3 Write property test for variable display
+    - **Property 12: Variable Display Accuracy**
+    - **Validates: Requirements 5.6**
+
+- [x] 8. Implement D3 canvas components
+  - [x] 8.1 Create D3Canvas component in src/components/canvas/D3Canvas.tsx
+    - Initialize D3 SVG with zoom and pan support
+    - Handle resize and auto-scale
+    - _Requirements: 6.1, 6.2, 6.8_
+  - [x] 8.2 Create ArrayRenderer in src/components/canvas/ArrayRenderer.tsx
+    - Render array elements as rectangles
+    - Color zeros gray, non-zeros blue
+    - Position with adequate spacing
+    - _Requirements: 6.3, 6.7_
+  - [x] 8.3 Create PointerRenderer in src/components/canvas/PointerRenderer.tsx
+    - Render slow and fast pointer indicators
+    - Position at correct array indices
+    - Add labels for pointer names
+    - _Requirements: 6.4_
+  - [x] 8.4 Create ArrowRenderer in src/components/canvas/ArrowRenderer.tsx
+    - Render arrows for swap operations
+    - Show data flow direction
+    - _Requirements: 6.5_
+  - [x] 8.5 Create AnnotationRenderer in src/components/canvas/AnnotationRenderer.tsx
+    - Render step-specific text annotations
+    - Position above or beside elements
+    - Display swap operation descriptions
+    - _Requirements: 6.6, 6.9_
+  - [ ]* 8.6 Write property tests for canvas rendering
+    - **Property 9: Array Element Coloring Consistency**
+    - **Property 10: Pointer Position Accuracy**
+    - **Property 14: Canvas Auto-Scale Fit**
+    - **Property 15: Element Non-Overlap**
+    - **Validates: Requirements 6.3, 6.4, 6.7, 6.8**
+
+- [ ] 9. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 10. Implement control components
+  - [x] 10.1 Create useAlgorithmState hook in src/hooks/useAlgorithmState.ts
+    - Manage current step, playing state, speed
+    - Provide step forward/backward/reset functions
+    - Handle auto-play with speed control
+    - _Requirements: 7.5, 7.6, 7.7, 7.8_
+  - [x] 10.2 Create useKeyboardControls hook in src/hooks/useKeyboardControls.ts
+    - Listen for arrow keys, space, R key
+    - Call appropriate state functions
+    - _Requirements: 7.5, 7.6, 7.7, 7.8_
+  - [x] 10.3 Create SpeedSelector component in src/components/controls/SpeedSelector.tsx
+    - Custom dropdown (not native select)
+    - Options: 0.5x, 1.0x, 1.5x, 2.0x, 3.0x
+    - Persist to IndexedDB
+    - _Requirements: 7.9, 7.10_
+  - [x] 10.4 Create ControlPanel component in src/components/controls/ControlPanel.tsx
+    - Previous/Next/Play-Pause/Reset buttons
+    - Display keyboard shortcut labels on buttons
+    - Integrate SpeedSelector
+    - _Requirements: 7.1, 7.2, 7.3, 7.4_
+  - [x] 10.5 Create ProgressBar component in src/components/controls/ProgressBar.tsx
+    - Display progress with green (played) and gray (unplayed)
+    - Support drag to seek
+    - Span 100% width
+    - _Requirements: 7.11, 7.12, 7.13_
+  - [ ]* 10.6 Write property tests for controls
+    - **Property 7: Keyboard Control State Transitions**
+    - **Property 8: Progress Bar Seek Accuracy**
+    - **Validates: Requirements 7.5, 7.6, 7.7, 7.8, 7.13**
+
+- [x] 11. Implement float components
+  - [x] 11.1 Download WeChat QR code image to public folder
+    - Save image maintaining original aspect ratio
+    - _Requirements: 8.3_
+  - [x] 11.2 Create WeChatFloat component in src/components/float/WeChatFloat.tsx
+    - Floating button with "交流群" text in bottom-right
+    - Show QR code on hover
+    - Display prompt text
+    - Maintain image aspect ratio
+    - _Requirements: 8.1, 8.2, 8.3, 8.4_
+
+- [x] 12. Integrate all components in App
+  - [x] 12.1 Update App.tsx with new layout
+    - Header section with TitleBar, GitHubBadge, AlgorithmExplanation button, DataInput
+    - Main section with CodeDisplay and D3Canvas
+    - Control section with ControlPanel and ProgressBar
+    - Float section with WeChatFloat
+    - Single-screen layout without scrolling
+    - _Requirements: 10.3_
+  - [x] 12.2 Wire up state management
+    - Connect DataInput to step generator
+    - Connect algorithm state to all display components
+    - Connect keyboard controls
+    - _Requirements: 9.1, 9.4_
+  - [x] 12.3 Apply coordinated color scheme
+    - Ensure no purple colors anywhere
+    - Consistent styling across components
+    - _Requirements: 10.1, 10.2_
+
+- [ ] 13. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 14. Configure development server and deployment
+  - [x] 14.1 Configure random port for development server
+    - Modify package.json start script to use random port 30000-65535
+    - _Requirements: 12.1_
+  - [x] 14.2 Create GitHub Actions workflow in .github/workflows/deploy.yml
+    - Build on push to main branch
+    - Verify no compilation errors
+    - Verify no linter errors
+    - Deploy to GitHub Pages
+    - _Requirements: 11.1, 11.2, 11.3_
+  - [x] 14.3 Update README.md
+    - Concise description of LeetCode 283 visualization
+    - Link to deployed GitHub Pages site
+    - _Requirements: 13.1, 13.2_
+  - [x] 14.4 Update .gitignore
+    - Ensure node_modules and build artifacts are excluded
+    - _Requirements: 11.1_
+
+- [ ] 15. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.

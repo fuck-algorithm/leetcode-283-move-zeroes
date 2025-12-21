@@ -1,0 +1,79 @@
+/**
+ * 速度选择器样式
+ */
+
+.speed-selector {
+  position: relative;
+  display: inline-block;
+}
+
+.speed-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #1f2937;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.speed-trigger:hover {
+  background-color: #e5e7eb;
+}
+
+.speed-icon {
+  font-size: 14px;
+}
+
+.speed-value {
+  font-weight: 500;
+  min-width: 36px;
+  text-align: center;
+}
+
+.speed-arrow {
+  font-size: 10px;
+  color: #6b7280;
+  transition: transform 0.2s ease;
+}
+
+.speed-arrow.open {
+  transform: rotate(180deg);
+}
+
+.speed-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  padding: 4px 0;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  list-style: none;
+  z-index: 100;
+}
+
+.speed-option {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #1f2937;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.speed-option:hover {
+  background-color: #f3f4f6;
+}
+
+.speed-option.selected {
+  background-color: #dbeafe;
+  color: #2563eb;
+  font-weight: 500;
+}

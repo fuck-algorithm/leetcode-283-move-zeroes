@@ -4,49 +4,55 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # 允许手动触发
+      - master
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # 明确指定需要写入权限
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }} # 确保不会同时运行多个相同的工作流程
+    
     steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '20' # 使用更新的Node.js版本
+          node-version: '18'
           cache: 'npm'
-      
-      - name: Debug Environment
-        run: |
-          node --version
-          npm --version
-          ls -la
 
       - name: Install dependencies
-        run: |
-          npm config set legacy-peer-deps true
-          npm install --no-fund --no-audit --prefer-offline
-        env:
-          CI: true
+        run: npm ci --legacy-peer-deps
+
+      - name: Run linter
+        run: npm run lint --if-present
 
       - name: Build
         run: npm run build
         env:
-          CI: false # 避免将警告视为错误
+          CI: false
 
-      - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          folder: build # React 默认的构建输出目录
-          branch: gh-pages # 部署到的分支
-          clean: true # 清理旧文件
-          token: ${{ secrets.GITHUB_TOKEN }} # 使用GitHub自动生成的token 
+          path: ./build
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
