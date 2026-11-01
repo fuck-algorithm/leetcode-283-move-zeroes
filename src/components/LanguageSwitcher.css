@@ -1,0 +1,53 @@
+.language-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  color: #52635e;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.language-switcher-label {
+  color: #66756f;
+}
+
+.language-switcher select {
+  appearance: none;
+  min-width: 88px;
+  height: 30px;
+  padding: 0 28px 0 10px;
+  border: 1px solid #cfdad5;
+  border-radius: 7px;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m2 4 4 4 4-4' fill='none' stroke='%2352635e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  color: #20332c;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.language-switcher select:hover {
+  border-color: #78a394;
+  background-color: #fbfdfc;
+}
+
+.language-switcher select:focus-visible {
+  outline: none;
+  border-color: #268365;
+  box-shadow: 0 0 0 3px rgba(38, 131, 101, 0.16);
+}
+
+@media (max-width: 700px) {
+  .language-switcher-label {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .language-switcher select {
+    transition: none;
+  }
+}

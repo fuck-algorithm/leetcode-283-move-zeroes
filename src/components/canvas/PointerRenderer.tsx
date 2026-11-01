@@ -1,15 +1,8 @@
-/**
- * 指针渲染器组件
- * 渲染 slow 和 fast 指针
- * Requirements: 6.4
- */
-
 import React from 'react';
-import { POINTER_COLORS } from '../../utils/colorScheme';
 
 interface ArrayLayout {
+  arrayLength: number;
   elementWidth: number;
-  elementHeight: number;
   spacing: number;
   startX: number;
   startY: number;
@@ -21,63 +14,54 @@ interface PointerRendererProps {
   layout: ArrayLayout;
 }
 
+const POINTER_STYLE = {
+  slow: { fill: '#247d61', stroke: '#145c45', label: '#145c45' },
+  fast: { fill: '#b37b19', stroke: '#80570f', label: '#80570f' },
+};
+
 const PointerRenderer: React.FC<PointerRendererProps> = ({
   slowPointer,
   fastPointer,
   layout,
 }) => {
-  const { elementWidth, elementHeight, spacing, startX, startY } = layout;
-  const pointerSize = 28;
-  const pointerOffset = 50; // 增大指针与数组的距离
+  const { arrayLength, elementWidth, spacing, startX, startY } = layout;
+  const pointerSize = 24;
+  const pointerY = startY - 36;
+  const getPointerX = (index: number) =>
+    startX + index * (elementWidth + spacing) + elementWidth / 2;
 
-  // 计算指针位置
-  const getPointerX = (index: number) => startX + index * (elementWidth + spacing) + elementWidth / 2;
-  const pointerY = startY - pointerOffset;
-
-  // 渲染单个指针
-  const renderPointer = (
-    index: number,
-    label: string,
-    colors: { fill: string; stroke: string; text: string; label: string },
-    offsetX: number = 0
-  ) => {
+  const renderPointer = (index: number, label: 'slow' | 'fast', offsetX = 0) => {
     const x = getPointerX(index) + offsetX;
-
+    const style = POINTER_STYLE[label];
     return (
-      <g className={`pointer pointer-${label.toLowerCase()}`}>
-        {/* 指针三角形 */}
+      <g key={`pointer-${label}`} className={`pointer pointer-${label}`}>
         <polygon
           points={`${x},${pointerY + pointerSize} ${x - pointerSize / 2},${pointerY} ${x + pointerSize / 2},${pointerY}`}
-          fill={colors.fill}
-          stroke={colors.stroke}
+          fill={style.fill}
+          stroke={style.stroke}
           strokeWidth={2}
+          data-pointer={label}
         />
-
-        {/* 指针标签 */}
         <text
           x={x}
           y={pointerY - 8}
           textAnchor="middle"
-          fill={colors.label}
+          fill={style.label}
           fontSize={12}
-          fontWeight={600}
+          fontWeight={700}
           fontFamily="Consolas, Monaco, monospace"
-        >
-          {label}
-        </text>
+        >{label}</text>
       </g>
     );
   };
 
-  // 如果两个指针在同一位置，稍微错开显示
-  const isSamePosition = slowPointer === fastPointer;
-  const slowOffset = isSamePosition ? -15 : 0;
-  const fastOffset = isSamePosition ? 15 : 0;
-
+  const samePosition = slowPointer === fastPointer;
   return (
     <g className="pointer-renderer">
-      {renderPointer(slowPointer, 'slow', POINTER_COLORS.slow, slowOffset)}
-      {renderPointer(fastPointer, 'fast', POINTER_COLORS.fast, fastOffset)}
+      {slowPointer >= 0 && slowPointer < arrayLength &&
+        renderPointer(slowPointer, 'slow', samePosition ? -24 : 0)}
+      {fastPointer >= 0 && fastPointer < arrayLength &&
+        renderPointer(fastPointer, 'fast', samePosition ? 24 : 0)}
     </g>
   );
 };

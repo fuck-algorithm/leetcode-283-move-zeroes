@@ -33,7 +33,13 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Run linter
-        run: npm run lint --if-present
+        run: npm run lint
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Run unit tests
+        run: npm test -- --watchAll=false --runInBand
 
       - name: Build
         run: npm run build

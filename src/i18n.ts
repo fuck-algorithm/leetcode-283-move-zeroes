@@ -1,6 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next, useTranslation } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import { getStoredValue, setStoredValue } from './utils/browserStorage';
 
 // 定义翻译内容，而不是从文件导入
 const enTranslation = {
@@ -54,7 +54,7 @@ const enTranslation = {
   "errors": {
     "nonNumeric": "Contains non-numeric values",
     "emptyArray": "Array cannot be empty",
-    "tooLarge": "Array length cannot exceed 100",
+    "tooLarge": "Array length cannot exceed 20",
     "invalidInput": "Please enter a valid array, e.g.: 0,1,0,3,12"
   },
   "visualization": {
@@ -142,7 +142,7 @@ const zhTranslation = {
   "errors": {
     "nonNumeric": "包含非数字值",
     "emptyArray": "数组不能为空",
-    "tooLarge": "数组长度不能超过100",
+    "tooLarge": "数组长度不能超过20",
     "invalidInput": "请输入有效的数组，例如：0,1,0,3,12"
   },
   "visualization": {
@@ -218,13 +218,10 @@ export const formatTranslation = (key: string, args: any[], language?: string): 
   return text;
 };
 
-// 从localStorage获取用户之前选择的语言
-const savedLanguage = localStorage.getItem('userLanguage');
+const savedLanguage = getStoredValue('userLanguage') || undefined;
 
 i18n
-  // 使用语言检测器
-  .use(LanguageDetector)
-  // 将i18n实例传递给react-i18next
+  // 将 i18n 实例传递给 react-i18next
   .use(initReactI18next)
   // 初始化i18next
   .init({
@@ -237,13 +234,8 @@ i18n
       }
     },
     fallbackLng: 'en',
-    // 如果有保存的语言，则使用保存的语言，否则自动检测浏览器语言
-    lng: savedLanguage || undefined,
-    detection: {
-      order: ['localStorage', 'navigator'],
-      lookupLocalStorage: 'userLanguage',
-      caches: ['localStorage']
-    },
+    // 用户偏好可读取时优先使用，否则按浏览器语言选择。
+    lng: savedLanguage || (navigator.language.startsWith('zh') ? 'zh' : 'en'),
     interpolation: {
       escapeValue: false // 不转义HTML
     },
@@ -256,7 +248,7 @@ i18n
 // 添加一个函数用于更改语言并保存到localStorage
 export const changeLanguage = (language: string) => {
   i18n.changeLanguage(language);
-  localStorage.setItem('userLanguage', language);
+  setStoredValue('userLanguage', language);
 };
 
 // 自定义钩子，避开类型检查问题

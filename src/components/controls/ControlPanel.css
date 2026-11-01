@@ -16,6 +16,12 @@
   flex-wrap: wrap;
 }
 
+@media (max-width: 1099px) {
+  .control-buttons {
+    flex-wrap: nowrap;
+  }
+}
+
 .control-btn {
   display: flex;
   flex-direction: column;
@@ -41,13 +47,13 @@
 }
 
 .control-btn-primary {
-  background-color: #2563eb;
-  border-color: #2563eb;
+  background-color: #247d61;
+  border-color: #247d61;
   color: #ffffff;
 }
 
 .control-btn-primary:hover:not(:disabled) {
-  background-color: #1d4ed8;
+  background-color: #17684d;
 }
 
 .control-btn-primary .btn-shortcut {

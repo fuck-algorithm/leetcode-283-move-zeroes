@@ -1,13 +1,5 @@
-/**
- * 标注渲染器组件
- * 渲染步骤相关的文字标注、区域标记和操作说明
- * Requirements: 6.6, 6.9
- */
-
 import React from 'react';
 import { AlgorithmStep, AnnotationConfig } from '../../types';
-import { COLORS } from '../../utils/colorScheme';
-import { getActionColor } from '../../utils/stepGenerator';
 
 interface ArrayLayout {
   elementWidth: number;
@@ -23,283 +15,118 @@ interface AnnotationRendererProps {
   layout: ArrayLayout;
 }
 
-const AnnotationRenderer: React.FC<AnnotationRendererProps> = ({
-  step,
-  layout,
-}) => {
-  const { startX, startY, totalWidth, elementHeight, elementWidth, spacing } = layout;
-  const centerX = startX + totalWidth / 2;
-  const annotationY = startY + elementHeight + 100; // 增大标注与数组的距离
+const AnnotationRenderer: React.FC<AnnotationRendererProps> = ({ step, layout }) => {
+  const { startX, startY, elementHeight, elementWidth, spacing } = layout;
+  const getElementX = (index: number) =>
+    startX + index * (elementWidth + spacing) + elementWidth / 2;
 
-  // 获取元素的X坐标
-  const getElementX = (index: number) => startX + index * (elementWidth + spacing) + elementWidth / 2;
-
-  // 根据操作类型获取主标注颜色
-  const actionColor = getActionColor(step.action);
-
-  // 渲染区域标注
-  const renderRegionAnnotation = (annotation: AnnotationConfig, index: number) => {
-    if (annotation.type !== 'region' || annotation.fromIndex === undefined || annotation.toIndex === undefined) {
-      return null;
-    }
-
-    const fromX = startX + annotation.fromIndex * (elementWidth + spacing) - 8;
-    const toX = startX + annotation.toIndex * (elementWidth + spacing) + elementWidth + 8;
-    const width = toX - fromX;
-    const regionY = startY - 60; // 增大区域标注的偏移
-
+  const renderRegion = (annotation: AnnotationConfig, index: number) => {
+    if (annotation.type !== 'region' || annotation.fromIndex === undefined ||
+      annotation.toIndex === undefined) return null;
+    const x = startX + annotation.fromIndex * (elementWidth + spacing) - 8;
+    const right = startX + annotation.toIndex * (elementWidth + spacing) + elementWidth + 8;
+    const y = startY - 60;
     return (
       <g key={`region-${index}`} className="region-annotation">
-        {/* 区域背景 */}
         <rect
-          x={fromX}
-          y={regionY}
-          width={width}
+          x={x}
+          y={y}
+          width={right - x}
           height={elementHeight + 80}
           rx={8}
-          fill={annotation.color || '#f3f4f6'}
+          fill={annotation.color || '#edf3f0'}
           opacity={0.3}
         />
-        {/* 区域标签 */}
         {annotation.text && (
           <text
-            x={fromX + width / 2}
-            y={regionY - 10}
+            x={(x + right) / 2}
+            y={y - 10}
             textAnchor="middle"
-            fill={annotation.color || '#6b7280'}
+            fill="#60756d"
             fontSize={11}
-            fontWeight={500}
-          >
-            {annotation.text}
-          </text>
+          >{annotation.text}</text>
         )}
       </g>
     );
   };
 
-  // 渲染箭头标注
-  const renderArrowAnnotation = (annotation: AnnotationConfig, index: number) => {
-    if (annotation.type !== 'arrow' || annotation.fromIndex === undefined || annotation.toIndex === undefined) {
-      return null;
-    }
-
+  const renderArrow = (annotation: AnnotationConfig, index: number) => {
+    if (annotation.type !== 'arrow' || annotation.fromIndex === undefined ||
+      annotation.toIndex === undefined) return null;
     const fromX = getElementX(annotation.fromIndex);
     const toX = getElementX(annotation.toIndex);
-    const arrowY = startY + elementHeight + 60; // 增大箭头标注的偏移
-
-    // 创建弯曲路径
+    const y = startY + elementHeight + 48;
     const midX = (fromX + toX) / 2;
-    const curveHeight = 20;
-    const path = `M ${fromX} ${arrowY} Q ${midX} ${arrowY + curveHeight} ${toX} ${arrowY}`;
-
+    const markerId = `annotation-arrow-${step.id}-${index}`;
     return (
       <g key={`arrow-${index}`} className="arrow-annotation">
         <defs>
-          <marker
-            id={`arrowhead-${index}`}
-            markerWidth="8"
-            markerHeight="6"
-            refX="7"
-            refY="3"
-            orient="auto"
-          >
-            <polygon
-              points="0 0, 8 3, 0 6"
-              fill={annotation.color || '#f59e0b'}
-            />
+          <marker id={markerId} markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#b37b19" />
           </marker>
         </defs>
         <path
-          d={path}
+          d={`M${fromX},${y} Q${midX},${y + 16} ${toX},${y}`}
           fill="none"
-          stroke={annotation.color || '#f59e0b'}
+          stroke="#b37b19"
           strokeWidth={2}
-          markerEnd={`url(#arrowhead-${index})`}
+          markerEnd={`url(#${markerId})`}
         />
         {annotation.text && (
           <text
             x={midX}
-            y={arrowY + curveHeight + 18}
+            y={y + 31}
             textAnchor="middle"
-            fill={annotation.color || '#f59e0b'}
+            fill="#76530c"
             fontSize={11}
-            fontWeight={500}
-          >
-            {annotation.text}
-          </text>
+          >{annotation.text}</text>
         )}
       </g>
     );
   };
 
-  // 渲染比较标注
-  const renderComparisonAnnotation = (annotation: AnnotationConfig, index: number) => {
-    if (annotation.type !== 'comparison' || annotation.fromIndex === undefined) {
-      return null;
-    }
-
+  const renderComparison = (annotation: AnnotationConfig, index: number) => {
+    if (annotation.type !== 'comparison' || annotation.fromIndex === undefined) return null;
     const x = getElementX(annotation.fromIndex);
-    const y = startY - 75; // 增大比较标注的偏移
-
+    const y = startY - 75;
     return (
       <g key={`comparison-${index}`} className="comparison-annotation">
-        {/* 比较气泡 */}
-        <rect
-          x={x - 55}
-          y={y - 14}
-          width={110}
-          height={28}
-          rx={14}
-          fill="#fef3c7"
-          stroke="#f59e0b"
-          strokeWidth={1}
-        />
-        <text
-          x={x}
-          y={y + 4}
-          textAnchor="middle"
-          fill="#92400e"
-          fontSize={12}
-          fontWeight={500}
-        >
+        <rect x={x - 48} y={y - 13} width={96} height={26} rx={13} fill="#fff6df" stroke="#b37b19" />
+        <text x={x} y={y + 4} textAnchor="middle" fill="#49350d" fontSize={11}>
           {annotation.text}
         </text>
-        {/* 指向箭头 */}
-        <polygon
-          points={`${x - 6},${y + 14} ${x + 6},${y + 14} ${x},${y + 24}`}
-          fill="#fef3c7"
-          stroke="#f59e0b"
-          strokeWidth={1}
-        />
       </g>
     );
   };
 
-  // 渲染标签标注
-  const renderLabelAnnotation = (annotation: AnnotationConfig, index: number) => {
-    if (annotation.type !== 'label') {
-      return null;
-    }
-
-    const y = annotation.position === 'top' ? startY - 85 : annotationY + 55; // 增大标签偏移
-
+  const renderLabel = (annotation: AnnotationConfig, index: number) => {
+    if (annotation.type !== 'label') return null;
+    const centerX = startX + layout.totalWidth / 2;
+    const y = annotation.position === 'top' ? startY - 85 : startY + elementHeight + 84;
     return (
-      <g key={`label-${index}`} className="label-annotation">
-        <text
-          x={centerX}
-          y={y}
-          textAnchor="middle"
-          fill={annotation.color || '#6b7280'}
-          fontSize={12}
-          fontWeight={500}
-        >
-          {annotation.text}
-        </text>
-      </g>
+      <text
+        key={`label-${index}`}
+        className="label-annotation"
+        x={centerX}
+        y={y}
+        textAnchor="middle"
+        fill="#60756d"
+        fontSize={11}
+      >{annotation.text}</text>
     );
-  };
-
-  // 渲染所有标注
-  const renderAnnotations = () => {
-    if (!step.annotations) return null;
-
-    return step.annotations.map((annotation, index) => {
-      switch (annotation.type) {
-        case 'region':
-          return renderRegionAnnotation(annotation, index);
-        case 'arrow':
-          return renderArrowAnnotation(annotation, index);
-        case 'comparison':
-          return renderComparisonAnnotation(annotation, index);
-        case 'label':
-          return renderLabelAnnotation(annotation, index);
-        default:
-          return null;
-      }
-    });
   };
 
   return (
     <g className="annotation-renderer">
-      {/* 渲染自定义标注 */}
-      {renderAnnotations()}
-
-      {/* 主标注文本 */}
-      <text
-        x={centerX}
-        y={annotationY}
-        textAnchor="middle"
-        fill={actionColor}
-        fontSize={14}
-        fontWeight={600}
-      >
-        {step.description}
-      </text>
-
-      {/* 详细描述 */}
-      {step.detailDescription && (
-        <text
-          x={centerX}
-          y={annotationY + 20}
-          textAnchor="middle"
-          fill={COLORS.textLight}
-          fontSize={12}
-        >
-          {step.detailDescription}
-        </text>
-      )}
-
-      {/* 数组状态显示 */}
-      <text
-        x={centerX}
-        y={annotationY + 42}
-        textAnchor="middle"
-        fill={COLORS.textLight}
-        fontSize={12}
-        fontFamily="Consolas, Monaco, monospace"
-      >
-        nums = [{step.array.join(', ')}]
-      </text>
-
-      {/* 完成状态特殊标注 */}
-      {step.action === 'complete' && (
-        <g>
-          <rect
-            x={centerX - 90}
-            y={annotationY - 65}
-            width={180}
-            height={36}
-            rx={18}
-            fill={COLORS.secondary}
-          />
-          <text
-            x={centerX}
-            y={annotationY - 42}
-            textAnchor="middle"
-            fill={COLORS.textInverse}
-            fontSize={15}
-            fontWeight={600}
-          >
-            ✓ 算法执行完成
-          </text>
-        </g>
-      )}
-
-      {/* 交换动画提示 */}
-      {step.action === 'swap_execute' && step.slowPointer !== step.fastPointer && (
-        <g className="swap-indicator">
-          <text
-            x={centerX}
-            y={startY - 100}
-            textAnchor="middle"
-            fill="#ef4444"
-            fontSize={18}
-            fontWeight={700}
-          >
-            ↔ 交换中 ↔
-          </text>
-        </g>
-      )}
+      {step.annotations?.map((annotation, index) => {
+        switch (annotation.type) {
+          case 'region': return renderRegion(annotation, index);
+          case 'arrow': return renderArrow(annotation, index);
+          case 'comparison': return renderComparison(annotation, index);
+          case 'label': return renderLabel(annotation, index);
+          default: return null;
+        }
+      })}
     </g>
   );
 };

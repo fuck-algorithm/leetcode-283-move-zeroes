@@ -23,9 +23,14 @@ export function parseInput(input: string): ValidationResult {
     };
   }
 
-  // 移除可能的方括号
+  // 允许成对方括号，不接受不完整的数组格式
   let cleaned = trimmed;
-  if (cleaned.startsWith('[') && cleaned.endsWith(']')) {
+  const hasOpeningBracket = cleaned.startsWith('[');
+  const hasClosingBracket = cleaned.endsWith(']');
+  if (hasOpeningBracket !== hasClosingBracket) {
+    return { isValid: false, error: '方括号格式不完整' };
+  }
+  if (hasOpeningBracket) {
     cleaned = cleaned.slice(1, -1);
   }
 
@@ -34,6 +39,18 @@ export function parseInput(input: string): ValidationResult {
     return {
       isValid: false,
       error: '数组不能为空',
+    };
+  }
+
+  // 在解析元素前限制长度，避免超长输入触发昂贵的步骤生成
+  const maxLength = DEFAULT_VALIDATION_RULES.maxLength;
+  const potentialLength = cleaned.includes(',')
+    ? cleaned.split(',').length
+    : cleaned.trim().split(/\s+/).length;
+  if (potentialLength > maxLength) {
+    return {
+      isValid: false,
+      error: `数组长度不能超过${maxLength}`,
     };
   }
 
@@ -46,9 +63,19 @@ export function parseInput(input: string): ValidationResult {
     };
   }
 
-  // 分割并解析数字
-  const parts = cleaned.split(',').map(s => s.trim()).filter(s => s !== '');
-  
+  // 支持逗号或空格分隔，但拒绝连续/首尾逗号造成的空元素
+  if (/(^,|,,|,$)/.test(cleaned.trim())) {
+    return { isValid: false, error: '数组元素之间存在空项' };
+  }
+
+  const parts = cleaned.includes(',')
+    ? cleaned.split(',').map(s => s.trim())
+    : cleaned.trim().split(/\s+/);
+
+  if (parts.some(part => part === '')) {
+    return { isValid: false, error: '数组元素之间存在空项' };
+  }
+
   if (parts.length === 0) {
     return {
       isValid: false,
@@ -69,8 +96,8 @@ export function parseInput(input: string): ValidationResult {
 
     const num = parseInt(part, 10);
     
-    // 检查是否为 NaN
-    if (isNaN(num)) {
+    // 检查是否为 NaN 或超出安全整数范围
+    if (!Number.isSafeInteger(num)) {
       return {
         isValid: false,
         error: `"${part}" 不是有效的整数`,

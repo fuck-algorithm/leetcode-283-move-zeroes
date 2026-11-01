@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { ARROW_COLORS } from '../../utils/colorScheme';
 
 interface ArrayLayout {
+  arrayLength: number;
   elementWidth: number;
   elementHeight: number;
   spacing: number;

@@ -28,14 +28,17 @@ import ProgressBar from './controls/ProgressBar';
 
 // Float components
 import WeChatFloat from './float/WeChatFloat';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useCustomTranslation } from '../i18n';
 
 import './AlgorithmVisualizerPage.css';
 
 const DEFAULT_ARRAY = [0, 1, 0, 3, 12];
 
 const AlgorithmVisualizerPage: React.FC = () => {
-  // 语言偏好
+  // 编程语言偏好
   const { language, setLanguage } = useLanguagePreference();
+  const { i18n } = useCustomTranslation();
   
   // 播放速度偏好
   const { speed: savedSpeed, setSpeed: saveSpeed } = usePlaybackSpeed();
@@ -64,7 +67,8 @@ const AlgorithmVisualizerPage: React.FC = () => {
   // 算法思路弹窗状态
   const [isExplanationOpen, setIsExplanationOpen] = useState(false);
 
-  // 画布尺寸
+  // 画布尺寸由容器观察器实时测量
+  const canvasHostRef = React.useRef<HTMLDivElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 600, height: 300 });
 
   // 同步速度到持久化存储
@@ -93,25 +97,35 @@ const AlgorithmVisualizerPage: React.FC = () => {
     saveSpeed(newSpeed);
   }, [setSpeed, saveSpeed]);
 
-  // 监听窗口大小变化，更新画布尺寸
+  // 观察画布容器尺寸，响应布局变化和侧栏切换
   useEffect(() => {
-    const updateCanvasSize = () => {
-      const container = document.querySelector('.canvas-section');
-      if (container) {
-        const rect = container.getBoundingClientRect();
-        setCanvasSize({
-          width: rect.width - 32,
-          height: rect.height - 32,
-        });
-      }
+    const container = canvasHostRef.current;
+    if (!container) return;
+
+    const updateCanvasSize = (width: number, height: number) => {
+      setCanvasSize({
+        width: Math.max(1, width),
+        height: Math.max(1, height),
+      });
     };
 
-    updateCanvasSize();
-    window.addEventListener('resize', updateCanvasSize);
+    const initialRect = container.getBoundingClientRect();
+    updateCanvasSize(initialRect.width, initialRect.height);
 
-    return () => {
-      window.removeEventListener('resize', updateCanvasSize);
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(([entry]) => {
+        updateCanvasSize(entry.contentRect.width, entry.contentRect.height);
+      });
+      observer.observe(container);
+      return () => observer.disconnect();
+    }
+
+    const handleResize = () => {
+      const rect = container.getBoundingClientRect();
+      updateCanvasSize(rect.width, rect.height);
     };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return (
@@ -130,7 +144,7 @@ const AlgorithmVisualizerPage: React.FC = () => {
 
           <TitleBar
             problemNumber={283}
-            problemTitle="移动零"
+            problemTitle={i18n.language.startsWith('zh') ? '移动零' : 'Move Zeroes'}
             leetCodeUrl="https://leetcode.cn/problems/move-zeroes/"
           />
 
@@ -141,6 +155,7 @@ const AlgorithmVisualizerPage: React.FC = () => {
             >
               算法思路
             </button>
+            <LanguageSwitcher />
             <GitHubBadge
               repoUrl="https://github.com/fuck-algorithm/leetcode-283-move-zeroes"
               owner="fuck-algorithm"
@@ -167,7 +182,7 @@ const AlgorithmVisualizerPage: React.FC = () => {
         </aside>
 
         {/* 画布区域 */}
-        <section className="canvas-section">
+        <section className="canvas-section" ref={canvasHostRef}>
           <D3Canvas
             step={currentStep}
             width={canvasSize.width}
@@ -190,11 +205,13 @@ const AlgorithmVisualizerPage: React.FC = () => {
           onReset={reset}
           onSpeedChange={handleSpeedChange}
         />
-        <ProgressBar
-          currentStep={currentStepIndex}
-          totalSteps={totalSteps}
-          onSeek={seekTo}
-        />
+        <div className="progress-section">
+          <ProgressBar
+            currentStep={currentStepIndex}
+            totalSteps={totalSteps}
+            onSeek={seekTo}
+          />
+        </div>
       </footer>
 
       {/* 悬浮组件 */}

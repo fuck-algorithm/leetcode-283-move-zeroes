@@ -1,6 +1,6 @@
 import React from 'react';
-import { useCustomTranslation } from '../i18n';
-import { changeLanguage } from '../i18n';
+import { changeLanguage, useCustomTranslation } from '../i18n';
+import './LanguageSwitcher.css';
 
 const LanguageSwitcher: React.FC = () => {
   const { t, i18n } = useCustomTranslation();
@@ -12,32 +12,18 @@ const LanguageSwitcher: React.FC = () => {
   };
 
   return (
-    <div className="language-switcher" style={{
-      position: 'absolute',
-      top: '25px',
-      right: '70px',
-      display: 'flex',
-      alignItems: 'center',
-      height: '31px',
-      zIndex: 1000
-    }}>
+    <label className="language-switcher" htmlFor="language-select">
+      <span className="language-switcher-label">{t('language.change')}</span>
       <select
         id="language-select"
+        aria-label={t('language.change')}
         value={currentLanguage.startsWith('zh') ? 'zh' : 'en'}
         onChange={handleLanguageChange}
-        style={{
-          padding: '5px',
-          borderRadius: '4px',
-          border: '1px solid #ccc',
-          backgroundColor: '#2c3e50',
-          color: '#fff',
-          height: '30px'
-        }}
       >
         <option value="en">{t('language.en')}</option>
         <option value="zh">{t('language.zh')}</option>
       </select>
-    </div>
+    </label>
   );
 };
 

@@ -70,8 +70,13 @@ export interface AnnotationConfig {
   color?: string;
 }
 
+export type StepOperation = 'init' | 'read' | 'compare' | 'swap' | 'move' | 'done';
+
 export interface AlgorithmStep {
   id: number;
+  operation: StepOperation;
+  narration: string;
+  focusIndices: number[];
   array: number[];
   slowPointer: number;
   fastPointer: number;
@@ -102,7 +107,7 @@ export interface ValidationRules {
 
 export const DEFAULT_VALIDATION_RULES: ValidationRules = {
   minLength: 1,
-  maxLength: 10000,
+  maxLength: 20,
   minValue: -(2 ** 31),
   maxValue: 2 ** 31 - 1
 };

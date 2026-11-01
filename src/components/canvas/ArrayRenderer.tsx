@@ -1,12 +1,5 @@
-/**
- * 数组渲染器组件
- * 渲染数组元素，支持多种状态显示和动画效果
- * Requirements: 6.3, 6.7
- */
-
 import React from 'react';
 import { StepAction } from '../../types';
-import { getArrayElementColor, COLORS } from '../../utils/colorScheme';
 
 interface ArrayLayout {
   elementWidth: number;
@@ -25,6 +18,8 @@ interface ArrayRendererProps {
   highlightIndices?: number[];
 }
 
+const SWAP_ACTIONS: StepAction[] = ['swap', 'swap_prepare', 'swap_execute', 'swap_complete'];
+
 const ArrayRenderer: React.FC<ArrayRendererProps> = ({
   array,
   layout,
@@ -35,166 +30,97 @@ const ArrayRenderer: React.FC<ArrayRendererProps> = ({
 }) => {
   const { elementWidth, elementHeight, spacing, startX, startY } = layout;
 
-  // 判断元素是否需要特殊高亮
-  const getElementState = (index: number, value: number) => {
-    const isSlowPointer = index === slowPointer;
-    const isFastPointer = index === fastPointer;
-    const isHighlighted = highlightIndices.includes(index);
-    
-    // 交换相关的动作
-    const isSwapAction = ['swap', 'swap_prepare', 'swap_execute', 'swap_complete'].includes(action);
-    const isSwapping = isSwapAction && (isSlowPointer || isFastPointer) && slowPointer !== fastPointer;
-    
-    // 比较动作
-    const isComparing = ['compare', 'compare_zero', 'compare_nonzero'].includes(action) && isFastPointer;
-    
-    // 已处理区域（在 slow 指针左侧的非零元素）
-    const isProcessed = index < slowPointer && value !== 0;
-    
-    return {
-      isSlowPointer,
-      isFastPointer,
-      isHighlighted,
-      isSwapping,
-      isComparing,
-      isProcessed,
-    };
-  };
-
-  // 获取元素的颜色
-  const getElementColors = (index: number, value: number) => {
-    const state = getElementState(index, value);
-    
-    // 交换中的元素 - 红色边框
-    if (state.isSwapping) {
-      return {
-        fill: value === 0 ? '#fecaca' : '#fee2e2',
-        stroke: '#ef4444',
-        text: '#991b1b',
-        strokeWidth: 3,
-        strokeDasharray: action === 'swap_execute' ? '5,3' : 'none',
-      };
-    }
-    
-    // 比较中的元素 - 橙色边框
-    if (state.isComparing) {
-      return {
-        fill: value === 0 ? '#fed7aa' : '#ffedd5',
-        stroke: '#f59e0b',
-        text: '#92400e',
-        strokeWidth: 3,
-        strokeDasharray: 'none',
-      };
-    }
-    
-    // 高亮的元素
-    if (state.isHighlighted && !state.isSwapping && !state.isComparing) {
-      return {
-        fill: '#fef3c7',
-        stroke: '#f59e0b',
-        text: '#92400e',
-        strokeWidth: 2,
-        strokeDasharray: 'none',
-      };
-    }
-    
-    // 已处理的元素 - 绿色
-    if (state.isProcessed) {
-      return {
-        fill: '#d1fae5',
-        stroke: '#059669',
-        text: '#065f46',
-        strokeWidth: 2,
-        strokeDasharray: 'none',
-      };
-    }
-    
-    // 零元素 - 灰色
-    if (value === 0) {
-      return {
-        fill: '#9ca3af',
-        stroke: '#6b7280',
-        text: '#ffffff',
-        strokeWidth: 2,
-        strokeDasharray: 'none',
-      };
-    }
-    
-    // 普通非零元素 - 蓝色
-    return {
-      fill: '#3b82f6',
-      stroke: '#1d4ed8',
-      text: '#ffffff',
-      strokeWidth: 2,
-      strokeDasharray: 'none',
-    };
-  };
-
   return (
     <g className="array-renderer">
       {array.map((value, index) => {
+        const isSlowPointer = index === slowPointer;
+        const isFastPointer = index === fastPointer;
+        const isHighlighted = highlightIndices.includes(index);
+        const isSwapping = SWAP_ACTIONS.includes(action) &&
+          (isSlowPointer || isFastPointer) && slowPointer !== fastPointer;
+        const isComparing = ['compare', 'compare_zero', 'compare_nonzero'].includes(action) &&
+          isFastPointer;
+        const isProcessed = index < slowPointer && value !== 0;
+        const isCurrent = isHighlighted && !isSwapping && !isComparing;
         const x = startX + index * (elementWidth + spacing);
-        const y = startY;
-        const colors = getElementColors(index, value);
-        const state = getElementState(index, value);
+        const stateLabel = isComparing ? '正在比较' : isProcessed ? '已处理' :
+          value === 0 ? '零值' : isCurrent ? '当前元素' : '未处理';
+
+        let colors = {
+          fill: value === 0 ? '#dce3e0' : '#edf3f0',
+          stroke: value === 0 ? '#87978f' : '#789187',
+          text: '#19332a',
+          strokeWidth: 2,
+          strokeDasharray: 'none',
+        };
+        if (isProcessed) {
+          colors = { fill: '#a9d6c3', stroke: '#4f8d77', text: '#19332a', strokeWidth: 2, strokeDasharray: 'none' };
+        } else if (isCurrent) {
+          colors = { fill: '#d3e9df', stroke: '#247d61', text: '#19332a', strokeWidth: 2, strokeDasharray: 'none' };
+        } else if (isComparing) {
+          colors = { fill: '#f7e5af', stroke: '#b37b19', text: '#49350d', strokeWidth: 3, strokeDasharray: 'none' };
+        } else if (isSwapping) {
+          colors = {
+            fill: value === 0 ? '#f7e4d9' : '#fbe9df',
+            stroke: '#b95730',
+            text: '#743a24',
+            strokeWidth: 3,
+            strokeDasharray: action === 'swap_execute' ? '5,3' : 'none',
+          };
+        }
+
+        const status = isComparing ? 'compare' : isProcessed ? 'visited' :
+          isCurrent ? 'current' : value === 0 ? 'idle' : 'normal';
 
         return (
-          <g key={index} className="array-element">
-            {/* 元素背景 */}
+          <g
+            key={`array-slot-${index}`}
+            className={`array-element array-node--${status}`}
+            data-node-id={`array-slot-${index}`}
+            data-status={status}
+            transform={`translate(${x},${startY})`}
+          >
             <rect
-              x={x}
-              y={y}
               width={elementWidth}
               height={elementHeight}
-              rx={6}
-              ry={6}
+              rx={7}
               fill={colors.fill}
               stroke={colors.stroke}
               strokeWidth={colors.strokeWidth}
               strokeDasharray={colors.strokeDasharray}
-              style={{
-                transition: 'all 0.3s ease',
-              }}
+              data-state-label={stateLabel}
             />
-
-            {/* 元素值 */}
             <text
-              x={x + elementWidth / 2}
-              y={y + elementHeight / 2}
+              x={elementWidth / 2}
+              y={elementHeight / 2}
               textAnchor="middle"
               dominantBaseline="central"
               fill={colors.text}
-              fontSize={16}
-              fontWeight={600}
+              fontSize={Math.min(16, elementWidth * 0.32)}
+              fontWeight={700}
               fontFamily="Consolas, Monaco, monospace"
             >
               {value}
             </text>
-
-            {/* 索引标签 */}
             <text
-              x={x + elementWidth / 2}
-              y={y + elementHeight + 16}
+              x={elementWidth / 2}
+              y={elementHeight + 16}
               textAnchor="middle"
-              fill="#9ca3af"
-              fontSize={11}
+              fill="#75877f"
+              fontSize={10}
               fontFamily="Consolas, Monaco, monospace"
             >
               [{index}]
             </text>
-
-            {/* 状态标记 - 已处理 */}
-            {state.isProcessed && (
+            {isProcessed && (
               <text
-                x={x + elementWidth / 2}
-                y={y - 8}
+                x={elementWidth / 2}
+                y={-7}
                 textAnchor="middle"
-                fill="#059669"
+                fill="#17684d"
                 fontSize={10}
-                fontWeight={500}
-              >
-                ✓
-              </text>
+                fontWeight={700}
+              >✓</text>
             )}
           </g>
         );

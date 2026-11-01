@@ -74,7 +74,13 @@ const DataInput: React.FC<DataInputProps> = ({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder="输入逗号分隔的整数，如: 0,1,0,3,12"
+          aria-label="输入数组，最多 20 个整数"
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? 'array-input-error array-input-limit' : 'array-input-limit'}
         />
+        <span id="array-input-limit" className="input-count" aria-live="polite">
+          {inputValue.trim() ? inputValue.split(',').filter(part => part.trim() !== '').length : 0}/20
+        </span>
         <button 
           className="submit-btn"
           onClick={handleSubmit}
@@ -90,7 +96,7 @@ const DataInput: React.FC<DataInputProps> = ({
       </div>
 
       {error && (
-        <div className="error-message">{error}</div>
+        <div id="array-input-error" className="error-message" role="alert" aria-live="assertive">{error}</div>
       )}
 
       <div className="preset-row">

@@ -80,6 +80,13 @@
   opacity: 0.8;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .progress-played,
+  .progress-handle {
+    transition: none;
+  }
+}
+
 .progress-info {
   display: flex;
   justify-content: center;
