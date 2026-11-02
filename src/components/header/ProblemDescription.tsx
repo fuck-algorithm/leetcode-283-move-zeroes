@@ -9,14 +9,14 @@ const ProblemDescription: React.FC = () => {
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (!isOpen) {
-      triggerRef.current?.focus();
-      return;
-    }
+    if (!isOpen) return;
 
     closeRef.current?.focus();
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setIsOpen(false);
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+        triggerRef.current?.focus();
+      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
@@ -26,6 +26,7 @@ const ProblemDescription: React.FC = () => {
   return (
     <>
       <button
+        ref={triggerRef}
         className="problem-description-trigger"
         type="button"
         onClick={() => setIsOpen(true)}
@@ -36,7 +37,10 @@ const ProblemDescription: React.FC = () => {
         <div
           className="problem-description-overlay"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setIsOpen(false);
+            if (event.target === event.currentTarget) {
+              setIsOpen(false);
+              triggerRef.current?.focus();
+            }
           }}
         >
           <section
@@ -51,9 +55,13 @@ const ProblemDescription: React.FC = () => {
                 <h2 id="problem-description-title">{t('problem.title')}</h2>
               </div>
               <button
+                ref={closeRef}
                 aria-label={t('problem.close')}
                 className="problem-description-close"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  triggerRef.current?.focus();
+                }}
                 type="button"
               >
                 ×

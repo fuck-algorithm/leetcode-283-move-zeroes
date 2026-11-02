@@ -34,5 +34,6 @@ describe('ProblemDescription', () => {
     fireEvent.click(screen.getByRole('button', { name: 'problem.open' }));
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'problem.open' })).toHaveFocus();
   });
 });
