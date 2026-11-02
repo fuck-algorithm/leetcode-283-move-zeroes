@@ -15,6 +15,17 @@ describe('DataInput', () => {
     expect(onArrayChange).toHaveBeenCalledWith([1, 0, -3]);
   });
 
+  it.each([
+    ['[0, 1, 2]', '3/20'],
+    ['1，2，3', '3/20'],
+    ['1  2 3', '3/20'],
+    [' [ -1, 0 ] ', '2/20'],
+  ])('counts entered values in %j correctly', (value, expectedCount) => {
+    render(<DataInput initialArray={[0]} onArrayChange={jest.fn()} />);
+    fireEvent.change(screen.getByRole('textbox'), { target: { value } });
+    expect(screen.getByText(expectedCount)).toBeInTheDocument();
+  });
+
   it('rejects too-long input without changing the visualization', () => {
     const onArrayChange = jest.fn();
     render(<DataInput initialArray={[0, 1]} onArrayChange={onArrayChange} />);

@@ -79,7 +79,9 @@ const DataInput: React.FC<DataInputProps> = ({
           aria-describedby={error ? 'array-input-error array-input-limit' : 'array-input-limit'}
         />
         <span id="array-input-limit" className="input-count" aria-live="polite">
-          {inputValue.trim() ? inputValue.split(',').filter(part => part.trim() !== '').length : 0}/20
+          {inputValue.trim()
+            ? inputValue.replace(/^\s*\[|\]\s*$/g, '').split(/[，,\s]+/).filter(Boolean).length
+            : 0}/20
         </span>
         <button 
           className="submit-btn"

@@ -25,12 +25,20 @@ export function useKeyboardControls({
     (event: KeyboardEvent) => {
       if (!enabled) return;
 
-      // 忽略在输入框中的按键
       const target = event.target as HTMLElement;
+      if (target.isContentEditable || target.closest('input, textarea')) return;
+
+      const interactiveTarget = target.closest('button, a, select, [role="slider"]');
+      const sliderKey = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'Home', 'End']
+        .includes(event.key);
+      const shortcutKey = [
+        'ArrowRight', 'ArrowLeft', ' ', 'r', 'R', 'Enter', 'Home', 'End',
+      ].includes(event.key);
+      const nativeActivationKey = event.key === ' ' || event.key === 'Enter';
       if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable
+        (interactiveTarget?.matches('select') && shortcutKey) ||
+        (interactiveTarget?.matches('[role="slider"]') && sliderKey) ||
+        (interactiveTarget?.matches('button, a') && nativeActivationKey)
       ) {
         return;
       }
