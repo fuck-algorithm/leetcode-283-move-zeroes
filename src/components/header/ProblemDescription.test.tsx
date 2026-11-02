@@ -25,6 +25,26 @@ describe('ProblemDescription', () => {
     );
   });
 
+  it('traps keyboard focus and restores body scrolling after close', () => {
+    document.body.style.overflow = 'auto';
+    render(<ProblemDescription />);
+    fireEvent.click(screen.getByRole('button', { name: 'problem.open' }));
+
+    const closeButton = screen.getByRole('button', { name: 'problem.close' });
+    const problemLink = screen.getByRole('link', { name: 'problem.openLeetCode' });
+    expect(closeButton).toHaveFocus();
+    expect(document.body.style.overflow).toBe('hidden');
+
+    fireEvent.keyDown(closeButton, { key: 'Tab', shiftKey: true });
+    expect(problemLink).toHaveFocus();
+    fireEvent.keyDown(problemLink, { key: 'Tab' });
+    expect(closeButton).toHaveFocus();
+
+    fireEvent.click(closeButton);
+    expect(document.body.style.overflow).toBe('auto');
+    document.body.style.overflow = '';
+  });
+
   it('closes with the close button and Escape key', () => {
     render(<ProblemDescription />);
     fireEvent.click(screen.getByRole('button', { name: 'problem.open' }));

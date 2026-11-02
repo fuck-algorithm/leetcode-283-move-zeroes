@@ -6,21 +6,46 @@ const ProblemDescription: React.FC = () => {
   const { t } = useCustomTranslation();
   const [isOpen, setIsOpen] = React.useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const previousBodyOverflow = useRef('');
 
   useEffect(() => {
     if (!isOpen) return;
 
+    previousBodyOverflow.current = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     closeRef.current?.focus();
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsOpen(false);
         triggerRef.current?.focus();
+        return;
+      }
+
+      if (event.key !== 'Tab' || !dialogRef.current) return;
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusable.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = previousBodyOverflow.current;
+    };
   }, [isOpen]);
 
   return (
@@ -44,10 +69,12 @@ const ProblemDescription: React.FC = () => {
           }}
         >
           <section
+            ref={dialogRef}
             aria-labelledby="problem-description-title"
             aria-modal="true"
             className="problem-description-dialog"
             role="dialog"
+            tabIndex={-1}
           >
             <header className="problem-description-header">
               <div>
