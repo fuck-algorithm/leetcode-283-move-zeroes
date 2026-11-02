@@ -50,7 +50,7 @@ jobs:
             const previousRuns = runs.data.workflow_runs.filter((run) =>
               run.head_sha !== context.sha && run.id !== context.runId
             );
-            const destination = 'previous-pages/static';
+            const destination = 'previous-pages';
             fs.mkdirSync(destination, { recursive: true });
             let preserved = 0;
 
@@ -104,12 +104,8 @@ jobs:
       - name: Preserve previous fingerprinted assets
         run: |
           mkdir -p build/static/js build/static/css
-          if [ -d previous-pages/static/js ]; then
-            find previous-pages/static/js -maxdepth 1 -type f \( -name 'main.*.js' -o -name 'main.*.js.map' -o -name '*.chunk.js' -o -name '*.chunk.js.map' \) -exec cp -n {} build/static/js/ \;
-          fi
-          if [ -d previous-pages/static/css ]; then
-            find previous-pages/static/css -maxdepth 1 -type f \( -name 'main.*.css' -o -name 'main.*.css.map' \) -exec cp -n {} build/static/css/ \;
-          fi
+          find previous-pages/static/js -maxdepth 1 -type f \( -name 'main.*.js' -o -name 'main.*.js.map' -o -name '*.chunk.js' -o -name '*.chunk.js.map' \) -exec cp -n {} build/static/js/ \;
+          find previous-pages/static/css -maxdepth 1 -type f \( -name 'main.*.css' -o -name 'main.*.css.map' \) -exec cp -n {} build/static/css/ \;
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
