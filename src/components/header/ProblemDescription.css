@@ -1,0 +1,134 @@
+.problem-description-trigger {
+  padding: 5px 9px;
+  border: 1px solid #dce7e1;
+  border-radius: 7px;
+  background: #f7faf8;
+  color: #315c4d;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.problem-description-trigger:hover {
+  border-color: #9dbdad;
+  background: #eff6f2;
+}
+
+.problem-description-overlay {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(20 37 30 / 48%);
+}
+
+.problem-description-dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(620px, 100%);
+  max-height: min(80vh, 760px);
+  overflow: hidden;
+  border: 1px solid #dfe8e3;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgb(18 47 35 / 22%);
+}
+
+.problem-description-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 17px 22px 14px;
+  border-bottom: 1px solid #e4ebe7;
+}
+
+.problem-description-number {
+  color: #647a70;
+  font-size: 11px;
+}
+
+.problem-description-header h2 {
+  margin: 3px 0 0;
+  color: #19332a;
+  font-size: 21px;
+}
+
+.problem-description-close {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #53675e;
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.problem-description-close:hover {
+  background: #f0f5f2;
+}
+
+.problem-description-content {
+  overflow-y: auto;
+  padding: 20px 22px 24px;
+  color: #33483f;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.problem-description-statement {
+  margin: 0 0 18px;
+  color: #263c32;
+}
+
+.problem-description-content section {
+  margin: 0 0 17px;
+}
+
+.problem-description-content h3 {
+  margin: 0 0 7px;
+  color: #1b4836;
+  font-size: 14px;
+}
+
+.problem-description-content pre {
+  margin: 0;
+  padding: 11px 13px;
+  overflow-x: auto;
+  border-left: 3px solid #91b7a3;
+  background: #f5f8f6;
+  color: #33483f;
+  font: inherit;
+  white-space: pre-wrap;
+}
+
+.problem-description-content ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.problem-description-link {
+  display: inline-block;
+  margin-top: 2px;
+  color: #17684d;
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+
+.problem-description-link:focus-visible,
+.problem-description-trigger:focus-visible,
+.problem-description-close:focus-visible {
+  outline: 3px solid #72a98b;
+  outline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+  .problem-description-dialog {
+    max-height: 88vh;
+  }
+
+  .problem-description-content {
+    padding: 16px;
+  }
+}

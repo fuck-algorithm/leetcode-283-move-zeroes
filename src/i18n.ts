@@ -88,6 +88,20 @@ const enTranslation = {
     "swapComplete": "Swap Complete",
     "swapElements": "Swap {0} ↔ {1}",
     "elementsSwapped": "{0} ↔ {1} Swap Complete"
+  },
+  "problem": {
+    "open": "Problem",
+    "close": "Close problem description",
+    "title": "Move Zeroes",
+    "statement": "Given an integer array nums, move all 0's to the end while maintaining the relative order of the non-zero elements. Do this in-place without making a copy of the array.",
+    "exampleOneTitle": "Example 1",
+    "exampleOne": "Input: nums = [0,1,0,3,12]\nOutput: [1,3,12,0,0]",
+    "exampleTwoTitle": "Example 2",
+    "exampleTwo": "Input: nums = [0]\nOutput: [0]",
+    "constraintsTitle": "Constraints",
+    "lengthConstraint": "1 <= nums.length <= 10⁴",
+    "valueConstraint": "-2³¹ <= nums[i] <= 2³¹ - 1",
+    "openLeetCode": "View original problem on LeetCode ↗"
   }
 };
 
@@ -97,6 +111,20 @@ const zhTranslation = {
     "description": "力扣 283 题 - 移动零 的算法可视化",
     "viewSource": "查看源代码",
     "backToList": "返回 Hot 100"
+  },
+  "problem": {
+    "open": "题目描述",
+    "title": "283. 移动零",
+    "close": "关闭题目描述",
+    "statement": "给定一个整数数组 nums，请将所有 0 移动到数组的末尾，同时保持非零元素的相对顺序。\n\n注意：必须在不复制数组的情况下原地完成。",
+    "exampleOneTitle": "示例一",
+    "exampleOne": "输入：nums = [0,1,0,3,12]\n输出：[1,3,12,0,0]\n\n解释：非零元素 [1,3,12] 按原有顺序移动到数组前部。",
+    "exampleTwoTitle": "示例二",
+    "exampleTwo": "输入：nums = [0]\n输出：[0]",
+    "constraintsTitle": "提示",
+    "lengthConstraint": "1 ≤ nums.length ≤ 10⁴",
+    "valueConstraint": "-2³¹ ≤ nums[i] ≤ 2³¹ - 1",
+    "openLeetCode": "在 LeetCode 查看原题"
   },
   "algorithm": {
     "description": "给定一个数组 nums，编写一个函数将所有 0 移动到数组的末尾，同时保持非零元素的相对顺序。",

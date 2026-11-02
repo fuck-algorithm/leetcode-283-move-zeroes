@@ -15,6 +15,7 @@ import TitleBar from './header/TitleBar';
 import GitHubBadge from './header/GitHubBadge';
 import AlgorithmExplanation from './header/AlgorithmExplanation';
 import DataInput from './header/DataInput';
+import ProblemDescription from './header/ProblemDescription';
 
 // Code components
 import CodeDisplay from './code/CodeDisplay';
@@ -149,6 +150,7 @@ const AlgorithmVisualizerPage: React.FC = () => {
           />
 
           <div className="header-actions">
+            <ProblemDescription />
             <button
               className="explanation-btn"
               onClick={() => setIsExplanationOpen(true)}

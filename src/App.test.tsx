@@ -21,7 +21,13 @@ jest.mock('./i18n', () => {
         };
       }, []);
       return {
-        t: (key: string) => key === 'language.change' ? (language === 'zh' ? '切换语言' : 'Change Language') : key,
+        t: (key: string) => {
+          const translations: Record<string, { zh: string; en: string }> = {
+            'language.change': { zh: '切换语言', en: 'Change Language' },
+            'problem.open': { zh: '题目描述', en: 'Problem' },
+          };
+          return translations[key]?.[language as 'zh' | 'en'] ?? key;
+        },
         i18n: { language },
       };
     },
@@ -44,6 +50,7 @@ test('renders the Move Zeroes visualization and its main controls', () => {
   expect(screen.getByRole('heading', { name: '283. 移动零' })).toBeInTheDocument();
   expect(screen.getByRole('textbox', { name: /最多 20 个整数/ })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /下一步/ })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '题目描述' })).toBeInTheDocument();
   expect(screen.getByText(/算法思路/)).toBeInTheDocument();
 });
 
