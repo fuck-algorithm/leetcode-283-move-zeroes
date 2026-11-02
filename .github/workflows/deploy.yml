@@ -32,6 +32,13 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
+      - name: Checkout previous Pages assets
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: previous-pages
+          persist-credentials: false
+
       - name: Run linter
         run: npm run lint
 
@@ -45,6 +52,16 @@ jobs:
         run: npm run build
         env:
           CI: false
+
+      - name: Preserve previous fingerprinted assets
+        run: |
+          mkdir -p build/static/js build/static/css
+          if [ -d previous-pages/static/js ]; then
+            find previous-pages/static/js -maxdepth 1 -type f \( -name 'main.*.js' -o -name 'main.*.js.map' -o -name '*.chunk.js' \) -exec cp -n {} build/static/js/ \;
+          fi
+          if [ -d previous-pages/static/css ]; then
+            find previous-pages/static/css -maxdepth 1 -type f \( -name 'main.*.css' -o -name 'main.*.css.map' \) -exec cp -n {} build/static/css/ \;
+          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
