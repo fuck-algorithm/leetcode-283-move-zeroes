@@ -43,6 +43,10 @@ export async function fetchRepoInfo(owner: string, repo: string): Promise<GitHub
     }
 
     const data = await response.json();
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid GitHub API response');
+    }
+
     return data as GitHubRepoInfo;
   } catch (error) {
     clearTimeout(timeoutId);
@@ -63,6 +67,9 @@ export async function fetchRepoInfo(owner: string, repo: string): Promise<GitHub
  */
 export async function fetchStarCount(owner: string, repo: string): Promise<number> {
   const repoInfo = await fetchRepoInfo(owner, repo);
+  if (!Number.isFinite(repoInfo.stargazers_count) || repoInfo.stargazers_count < 0) {
+    throw new Error('Invalid GitHub star count');
+  }
   return repoInfo.stargazers_count;
 }
 
@@ -72,6 +79,9 @@ export async function fetchStarCount(owner: string, repo: string): Promise<numbe
  * @returns 格式化后的字符串
  */
 export function formatStarCount(count: number): string {
+  if (!Number.isFinite(count) || count < 0) {
+    return '0';
+  }
   if (count >= 1000000) {
     return `${(count / 1000000).toFixed(1)}M`;
   }

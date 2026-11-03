@@ -307,10 +307,10 @@ export async function saveGitHubStarsCache(starCount: number): Promise<void> {
 export async function getGitHubStarsWithFallback(): Promise<{ starCount: number; isFromCache: boolean }> {
   const { value, isExpired } = await getCacheItemWithExpired<GitHubCache>(GITHUB_STARS_CACHE_KEY);
   
-  if (value) {
+  if (value && Number.isFinite(value.starCount) && value.starCount >= 0) {
     return { starCount: value.starCount, isFromCache: !isExpired };
   }
-  
+
   return { starCount: 0, isFromCache: false };
 }
 

@@ -22,6 +22,7 @@ const GitHubBadge: React.FC<GitHubBadgeProps> = ({
 
   // 使用 Hook 管理 Star 数据
   const { starCount, isLoading } = useGitHubStars(fetchStars);
+  const safeStarCount = Number.isFinite(starCount) && starCount >= 0 ? starCount : 0;
 
   const handleClick = () => {
     window.open(repoUrl, '_blank', 'noopener,noreferrer');
@@ -45,7 +46,7 @@ const GitHubBadge: React.FC<GitHubBadgeProps> = ({
       
       {/* Star 数量 */}
       <span className="star-count">
-        {isLoading ? '...' : formatStarCount(starCount)}
+        {isLoading ? '...' : formatStarCount(safeStarCount)}
       </span>
     </div>
   );
