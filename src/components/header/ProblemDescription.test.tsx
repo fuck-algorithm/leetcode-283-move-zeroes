@@ -25,6 +25,15 @@ describe('ProblemDescription', () => {
     );
   });
 
+  it('renders the overlay at document level above page stacking contexts', () => {
+    render(<ProblemDescription />);
+    fireEvent.click(screen.getByRole('button', { name: 'problem.open' }));
+
+    const overlay = screen.getByRole('dialog').parentElement;
+    expect(overlay).toHaveClass('problem-description-overlay');
+    expect(overlay?.parentElement).toBe(document.body);
+  });
+
   it('traps keyboard focus and restores body scrolling after close', () => {
     document.body.style.overflow = 'auto';
     render(<ProblemDescription />);

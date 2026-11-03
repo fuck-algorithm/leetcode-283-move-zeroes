@@ -1,14 +1,20 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useCustomTranslation } from '../../i18n';
 import './ProblemDescription.css';
 
 const ProblemDescription: React.FC = () => {
   const { t } = useCustomTranslation();
   const [isOpen, setIsOpen] = React.useState(false);
+  const [portalRoot, setPortalRoot] = React.useState<HTMLElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const previousBodyOverflow = useRef('');
+
+  useEffect(() => {
+    setPortalRoot(document.body);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -58,7 +64,7 @@ const ProblemDescription: React.FC = () => {
       >
         {t('problem.open')}
       </button>
-      {isOpen && (
+      {isOpen && portalRoot && createPortal(
         <div
           className="problem-description-overlay"
           onMouseDown={(event) => {
@@ -121,7 +127,8 @@ const ProblemDescription: React.FC = () => {
               </a>
             </div>
           </section>
-        </div>
+        </div>,
+        portalRoot
       )}
     </>
   );

@@ -15,7 +15,7 @@
 
 .problem-description-overlay {
   position: fixed;
-  z-index: 1000;
+  z-index: 2000;
   inset: 0;
   display: grid;
   place-items: center;
@@ -28,6 +28,7 @@
   flex-direction: column;
   width: min(620px, 100%);
   max-height: min(80vh, 760px);
+  max-height: min(80dvh, 760px);
   overflow: hidden;
   border: 1px solid #dfe8e3;
   border-radius: 12px;
@@ -126,6 +127,7 @@
 @media (max-width: 700px) {
   .problem-description-dialog {
     max-height: 88vh;
+    max-height: 88dvh;
   }
 
   .problem-description-content {
