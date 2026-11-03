@@ -155,7 +155,7 @@ const AlgorithmVisualizerPage: React.FC = () => {
               className="explanation-btn"
               onClick={() => setIsExplanationOpen(true)}
             >
-              算法思路
+              思路说明
             </button>
             <LanguageSwitcher />
             <GitHubBadge

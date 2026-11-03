@@ -8,12 +8,12 @@ import AnnotationRenderer from './AnnotationRenderer';
 import './D3Canvas.css';
 
 const ACTION_LABELS: Record<AlgorithmStep['operation'], string> = {
-  init: '初始化',
-  read: '读取元素',
-  compare: '比较元素',
-  swap: '交换位置',
-  move: '移动指针',
-  done: '完成',
+  init: '准备开始',
+  read: '查看数字',
+  compare: '判断是不是 0',
+  swap: '把数字放到空格',
+  move: '寻找下一个空格',
+  done: '整理完成',
 };
 
 const D3Canvas: React.FC<D3CanvasProps> = ({ step, width, height, onZoom }) => {
@@ -157,17 +157,17 @@ const D3Canvas: React.FC<D3CanvasProps> = ({ step, width, height, onZoom }) => {
       </svg>
       <div className="canvas-teaching-footer">
         <div className="canvas-legend" aria-label="画布图例">
-          <span><i className="legend-dot legend-slow" />slow 慢指针</span>
-          <span><i className="legend-dot legend-fast" />fast 快指针</span>
-          <span><i className="legend-swatch legend-compare" />当前检查</span>
-          <span><i className="legend-swatch legend-processed" />已处理</span>
-          <span><i className="legend-swatch legend-zero" />零值</span>
+          <span><i className="legend-dot legend-slow" />slow 下一个放置位置</span>
+          <span><i className="legend-dot legend-fast" />fast 当前检查位置</span>
+          <span><i className="legend-swatch legend-compare" />当前数字</span>
+          <span><i className="legend-swatch legend-processed" />已放好</span>
+          <span><i className="legend-swatch legend-zero" />0</span>
         </div>
         <div className="canvas-metrics" aria-label="算法指标">
-          <span>fast <b>{step.fastPointer < 0 ? '—' : step.fastPointer}</b></span>
-          <span>slow <b>{step.slowPointer}</b></span>
-          <span>交换 <b>{step.variables.swapCount || 0}</b></span>
-          <span>已保留 <b>{processedCount}</b></span>
+          <span>查找格 fast <b>{step.fastPointer < 0 ? '准备中' : step.fastPointer + 1}</b></span>
+          <span>放置格 slow <b>{step.slowPointer + 1}</b></span>
+          <span>数字换位 <b>{step.variables.swapCount || 0}</b></span>
+          <span>已放好 <b>{processedCount}</b></span>
         </div>
       </div>
       <div className="zoom-hint">滚轮缩放 · 拖拽移动</div>

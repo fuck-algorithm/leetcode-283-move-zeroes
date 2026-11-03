@@ -47,10 +47,10 @@ const PointerRenderer: React.FC<PointerRendererProps> = ({
           y={pointerY - 8}
           textAnchor="middle"
           fill={style.label}
-          fontSize={12}
+          fontSize={label === 'slow' ? 9 : 10}
           fontWeight={700}
           fontFamily="Consolas, Monaco, monospace"
-        >{label}</text>
+        >{label === 'slow' ? 'slow 放置' : 'fast 检查'}</text>
       </g>
     );
   };

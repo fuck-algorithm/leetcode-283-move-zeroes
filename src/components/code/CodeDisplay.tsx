@@ -139,8 +139,8 @@ const CodeDisplay: React.FC<CodeDisplayProps> = ({
 
       {currentStep && (
         <div className="step-description">
-          <span className="step-label">步骤 {currentStep.id + 1}:</span>
-          <span className="step-text">{currentStep.description}</span>
+          <span className="step-label">白话解释：</span>
+          <span className="step-text">{currentStep.narration}</span>
         </div>
       )}
     </div>

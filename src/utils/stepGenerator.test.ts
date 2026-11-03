@@ -19,6 +19,32 @@ describe('generateSteps teaching metadata', () => {
     });
   });
 
+  it('explains pointer roles and array changes in beginner-friendly language', () => {
+    const steps = generateSteps([0, 1, 0]);
+    expect(steps[0].description).toContain('slow');
+    expect(steps[0].description).toContain('fast');
+    expect(steps.find(step => step.action === 'compare' && step.fastPointer === 0)?.detailDescription)
+      .toContain('0');
+    expect(steps.find(step => step.action === 'swap_execute')?.detailDescription)
+      .toContain('原来是 0');
+    expect(steps.find(step => step.action === 'move_slow')?.detailDescription)
+      .toContain('按原顺序放好');
+    expect(steps.find(step => step.action === 'move_slow' && step.fastPointer === 1)?.description)
+      .toContain('fast 找到的 1 已放到前面');
+    expect(steps.find(step => step.action === 'compare' && step.fastPointer === 0)?.detailDescription)
+      .toContain('先留在原格');
+    expect(steps.find(step => step.action === 'compare' && step.fastPointer === 1)?.detailDescription)
+      .toContain('第 1 格是前面 0 留下的空格');
+
+    const noSwapSteps = generateSteps([1, 2, 3]);
+    const alreadyPlaced = noSwapSteps.find(step => step.action === 'compare');
+    expect(alreadyPlaced?.detailDescription).toContain('不用挪动');
+    expect(alreadyPlaced?.detailDescription).toContain('第 1 格');
+    expect(noSwapSteps.find(step => step.action === 'move_slow')?.description)
+      .toContain('fast 找到的 1 已放到前面');
+    expect(steps[steps.length - 1].detailDescription).not.toContain('时间复杂度');
+  });
+
   it('preserves the input, keeps the non-zero order, and counts swaps in snapshots', () => {
     const input = [0, 1, 0, 3, 12];
     const steps = generateSteps(input);

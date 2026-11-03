@@ -38,11 +38,17 @@ export function generateSteps(inputArray: number[]): AlgorithmStep[] {
     slowPointer: 0,
     fastPointer: -1,
     action: 'init_slow',
-    description: '慢指针从数组开头开始，标记下一个非零元素的目标位置。',
-    detailDescription: 'slow = 0；所有数组槽位保持原位。',
+    description:
+      '先认识两个位置标记：slow 负责指出数字要放哪一格，fast 负责从左往右检查数字。',
+    detailDescription:
+      'slow（放置位置）从第 1 格开始；fast（查找位置）接下来从左往右逐格检查。代码里的 slow = 0 表示第 1 格，因为代码从 0 开始编号。',
     codeLines: getCodeLineBinding('init'),
     variables: { slow, fast: -1, nums: [...nums], swapCount },
-    annotations: [{ type: 'label', text: '写入位置从索引 0 开始', position: 'top' }],
+    annotations: [{
+      type: 'label',
+      text: 'slow 左边：按原顺序放好的非零数字',
+      position: 'top',
+    }],
     highlightIndices: [0],
   });
 
@@ -53,16 +59,18 @@ export function generateSteps(inputArray: number[]): AlgorithmStep[] {
       slowPointer: slow,
       fastPointer: fast,
       action: 'compare',
-      description: `检查 nums[${fast}] = ${value}，判断快指针遇到的是零还是需要保留的元素。`,
+      description: `查找位置 fast 正在检查第 ${fast + 1} 格的数字 ${value}。`,
       detailDescription: value === 0
-        ? '当前是零，slow 保持不动，让后续非零元素覆盖这个位置。'
-        : '当前值非零，必须按原有顺序写入 slow 指向的位置。',
+        ? 'fast 当前看到 0：它不能放进非零结果；先留在原格，继续往右找。'
+        : slow === fast
+          ? `fast 找到非零数字 ${value}。前面没有 0 留下的空格，它本来就在第 ${slow + 1} 格，所以不用挪动。`
+          : `fast 找到非零数字 ${value}。第 ${slow + 1} 格是前面 0 留下的空格，把 ${value} 放进去；被换到后面的 0 最后会排在末尾。`,
       codeLines: getCodeLineBinding('compare'),
       variables: { slow, fast, nums: [...nums], swapCount },
       annotations: [{
         type: 'comparison',
         fromIndex: fast,
-        text: `${value} ${value === 0 ? '= 0' : '≠ 0'}`,
+        text: value === 0 ? '是 0，跳过' : `不是 0，保留 ${value}`,
       }],
       highlightIndices: [fast],
     });
@@ -77,16 +85,16 @@ export function generateSteps(inputArray: number[]): AlgorithmStep[] {
           slowPointer: slow,
           fastPointer: fast,
           action: 'swap_execute',
-          description: `将非零值 ${value} 写入索引 ${slow}，把零移到索引 ${fast}。`,
+          description: `把数字 ${value} 从第 ${fast + 1} 格移到前面的空格（第 ${slow + 1} 格）。`,
           detailDescription:
-            `交换 nums[${slow}] = ${displaced} 与 nums[${fast}] = ${value}，非零元素顺序不变。`,
+            `第 ${slow + 1} 格原来是 ${displaced}，现在放入 ${value}；原来的 0 被换到后面，其他数字顺序不变。`,
           codeLines: getCodeLineBinding('swap'),
           variables: { slow, fast, nums: [...nums], swapCount },
           annotations: [{
             type: 'arrow',
             fromIndex: fast,
             toIndex: slow,
-            text: `写入 ${value}`,
+            text: `把 ${value} 放进空格`,
           }],
           highlightIndices: [slow, fast],
           animation: {
@@ -105,16 +113,16 @@ export function generateSteps(inputArray: number[]): AlgorithmStep[] {
         slowPointer: slow,
         fastPointer: fast,
         action: 'move_slow',
-        description: `索引 ${fast} 的非零值已安置，slow 前进到 ${slow} 作为下一个写入位置。`,
+        description: `fast 找到的 ${value} 已放到前面。slow 右移到第 ${slow + 1} 格，准备放下一个非零数字。`,
         detailDescription:
-          `前缀 [0, ${slow}) 已按原顺序收集全部已扫描的非零元素。`,
+          'slow 是下一个可以放非零数字的位置；它左边的数字已按原顺序放好。',
         codeLines: getCodeLineBinding('move_slow'),
         variables: { slow, fast, nums: [...nums], swapCount },
         annotations: [{
           type: 'region',
           fromIndex: 0,
           toIndex: Math.max(0, slow - 1),
-          text: '已保留的非零前缀',
+          text: '按原顺序放好的非零数字',
           color: '#b9e0cf',
         }],
         highlightIndices: slow < nums.length ? [slow] : [fast],
@@ -128,8 +136,8 @@ export function generateSteps(inputArray: number[]): AlgorithmStep[] {
     slowPointer: slow,
     fastPointer: nums.length - 1,
     action: 'complete',
-    description: `遍历结束：${slow} 个非零元素保持原顺序，${nums.length - slow} 个零位于数组末尾。`,
-    detailDescription: `原地完成，共交换 ${swapCount} 次；时间复杂度 O(n)，额外空间 O(1)。`,
+    description: `所有数字都检查完了：${slow} 个非零数字留在前面，${nums.length - slow} 个 0 排在末尾。`,
+    detailDescription: '每个数字只需检查一次，直接在原数组里调整，没有另外复制一份数组。',
     codeLines: getCodeLineBinding('complete'),
     variables: { slow, fast: nums.length - 1, nums: [...nums], swapCount },
     annotations: [
@@ -137,12 +145,12 @@ export function generateSteps(inputArray: number[]): AlgorithmStep[] {
         type: 'region',
         fromIndex: 0,
         toIndex: Math.max(0, slow - 1),
-        text: '非零元素',
+        text: '按原顺序放好的非零数字',
         color: '#b9e0cf',
       },
       {
         type: 'label',
-        text: `零元素位于末尾 · ${swapCount} 次交换`,
+        text: `结果：${nums.length - slow} 个 0 移到末尾 · ${swapCount} 次换位`,
         position: 'bottom',
       },
     ],

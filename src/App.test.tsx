@@ -51,7 +51,7 @@ test('renders the Move Zeroes visualization and its main controls', () => {
   expect(screen.getByRole('textbox', { name: /最多 20 个整数/ })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /下一步/ })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: '题目描述' })).toBeInTheDocument();
-  expect(screen.getByText(/算法思路/)).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '思路说明' })).toBeInTheDocument();
 });
 
 test('global language selector updates the active language', () => {

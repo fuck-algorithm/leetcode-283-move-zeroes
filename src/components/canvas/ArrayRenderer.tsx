@@ -43,8 +43,9 @@ const ArrayRenderer: React.FC<ArrayRendererProps> = ({
         const isProcessed = index < slowPointer && value !== 0;
         const isCurrent = isHighlighted && !isSwapping && !isComparing;
         const x = startX + index * (elementWidth + spacing);
-        const stateLabel = isComparing ? '正在比较' : isProcessed ? '已处理' :
-          value === 0 ? '零值' : isCurrent ? '当前元素' : '未处理';
+        const stateLabel = isComparing ? `fast 正在检查数字 ${value}` : isProcessed
+          ? '已放好的非零数字'
+          : value === 0 ? '0，等待移到末尾' : isCurrent ? '当前要放置的数字' : '还没检查';
 
         let colors = {
           fill: value === 0 ? '#dce3e0' : '#edf3f0',

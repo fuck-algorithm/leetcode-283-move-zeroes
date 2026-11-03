@@ -58,47 +58,53 @@ const AlgorithmExplanation: React.FC<AlgorithmExplanationProps> = ({
         </div>
         
         <div className="explanation-content">
-          <h3>双指针交换法</h3>
-          
-          <div className="explanation-section">
-            <h4>核心思想</h4>
-            <p>
-              使用两个指针 <code>slow</code> 和 <code>fast</code>，
-              <code>slow</code> 指向下一个非零元素应该放置的位置，
-              <code>fast</code> 用于遍历数组寻找非零元素。
-            </p>
-          </div>
+          <h3>把非零数字依次放到前面</h3>
 
           <div className="explanation-section">
-            <h4>算法步骤</h4>
-            <ol>
-              <li>初始化 <code>slow = 0</code></li>
-              <li>遍历数组，<code>fast</code> 从 0 到 n-1</li>
-              <li>当 <code>nums[fast] ≠ 0</code> 时：
-                <ul>
-                  <li>交换 <code>nums[slow]</code> 和 <code>nums[fast]</code></li>
-                  <li><code>slow++</code></li>
-                </ul>
-              </li>
-              <li>遍历结束后，所有非零元素都移到了前面</li>
-            </ol>
-          </div>
-
-          <div className="explanation-section">
-            <h4>复杂度分析</h4>
+            <h4>先认识两个位置标记</h4>
             <ul>
-              <li><strong>时间复杂度：</strong>O(n)，只需遍历一次数组</li>
-              <li><strong>空间复杂度：</strong>O(1)，只使用常数额外空间</li>
+              <li>
+                <code>fast</code>（查找位置）：从左到右逐格检查数字，看看是不是 0。
+                代码里的第 0 格就是平常说的第 1 格。
+              </li>
+              <li>
+                <code>slow</code>（放置位置）：指出下一个非零数字应该放在哪一格。
+              </li>
+              <li>
+                两个标记重合，说明中间没有空位；这个数字已经在正确位置，不用挪动。
+              </li>
             </ul>
           </div>
 
           <div className="explanation-section">
-            <h4>为什么这样做是正确的？</h4>
+            <h4>拿 [0, 1, 0, 3, 12] 举例</h4>
+            <ol>
+              <li>两个标记都从第 1 格开始（代码里编号是 0）。</li>
+              <li><code>fast</code> 看到第 1 格的 0：0 不算进前面的结果，先留在原格；<code>slow</code> 不动。</li>
+              <li>
+                <code>fast</code> 看到第 2 格的 1：第 1 格是前面 0 留下的空格，
+                把 1 放进去；<code>slow</code> 和 <code>fast</code> 都向右走。
+              </li>
+              <li><code>fast</code> 看到第 3 格的 0：跳过，<code>slow</code> 留在第 2 格。</li>
+              <li><code>fast</code> 接着找到 3 和 12：依次填进第 2、3 格的空位。</li>
+              <li>检查结束，得到 [1, 3, 12, 0, 0]。</li>
+            </ol>
+          </div>
+
+          <div className="explanation-section">
+            <h4>为什么要按顺序放？</h4>
             <p>
-              <code>slow</code> 指针始终指向"已处理区域"的末尾（即下一个非零元素应该放置的位置）。
-              当 <code>fast</code> 找到非零元素时，将其交换到 <code>slow</code> 位置，
-              保证了所有非零元素按原顺序排列在数组前部，零元素自然被"挤"到后面。
+              <code>fast</code> 总是从左往右找数字，所以会按原顺序遇到非零数字。
+              每次把它放进最靠左的空位，就不会打乱这些数字的先后次序。
             </p>
+          </div>
+
+          <div className="explanation-section">
+            <h4>运行成本</h4>
+            <ul>
+              <li>每个数字只检查一次，数组越长，检查次数也按比例增加。</li>
+              <li>直接调整原数组，不需要再复制一份数组。</li>
+            </ul>
           </div>
         </div>
       </div>
