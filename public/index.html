@@ -29,6 +29,39 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <div id="startup-error" role="alert" hidden style="max-width: 36rem; margin: 12vh auto; padding: 2rem; color: #f8fafc; background: #1e293b; border-radius: 1rem; font: 16px/1.6 system-ui, sans-serif;">
+      <h1 style="margin-top: 0">页面暂时无法加载</h1>
+      <p>应用脚本可能未能加载，或浏览器缓存了旧版本。请刷新页面；如果仍无法打开，请清除本站缓存后重试。</p>
+      <button type="button" onclick="window.location.reload()" style="padding: .65rem 1rem; cursor: pointer;">重新加载</button>
+    </div>
+    <script>
+      (function () {
+        var timeout = window.setTimeout(showStartupError, 10000);
+        function showStartupError() {
+          var root = document.getElementById('root');
+          var error = document.getElementById('startup-error');
+          if (root && error && !root.hasChildNodes()) {
+            error.hidden = false;
+          }
+        }
+        window.addEventListener('error', function (event) {
+          if (event.target && event.target.tagName === 'SCRIPT') {
+            showStartupError();
+          }
+        }, true);
+        window.addEventListener('unhandledrejection', showStartupError);
+        window.__appStarted = function () {
+          var root = document.getElementById('root');
+          var error = document.getElementById('startup-error');
+          if (root && root.hasChildNodes()) {
+            window.clearTimeout(timeout);
+            if (error) {
+              error.hidden = true;
+            }
+          }
+        };
+      })();
+    </script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
