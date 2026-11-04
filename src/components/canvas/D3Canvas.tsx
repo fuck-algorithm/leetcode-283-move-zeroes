@@ -150,6 +150,8 @@ const D3Canvas: React.FC<D3CanvasProps> = ({ step, width, height, onZoom }) => {
                 isAnimating={step.action === 'swap_execute'}
                 animationPhase={step.action === 'swap_prepare' ? 'prepare' :
                   step.action === 'swap_complete' ? 'complete' : 'execute'}
+                forwardLabel={`fast 的 ${step.array[step.fastPointer]} → slow 空格`}
+                reverseLabel={`slow 的 0 → fast 原格`}
               />
             )}
           <AnnotationRenderer step={step} layout={layout} />

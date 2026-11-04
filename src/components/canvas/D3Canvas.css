@@ -156,6 +156,24 @@
   cursor: grabbing;
 }
 
+.arrow-explanation rect {
+  filter: drop-shadow(0 2px 3px rgba(28, 49, 40, 0.16));
+}
+
+.arrow-explanation text {
+  dominant-baseline: central;
+  paint-order: stroke;
+  stroke: #fffdf7;
+  stroke-width: 0.7px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.swap-phase-label {
+  opacity: 0.72;
+  pointer-events: none;
+}
+
 .zoom-hint {
   position: absolute;
   right: 8px;

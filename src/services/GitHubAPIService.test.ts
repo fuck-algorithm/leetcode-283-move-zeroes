@@ -1,6 +1,24 @@
 import { fetchStarCount, formatStarCount } from './GitHubAPIService';
+import {
+  CACHE_EXPIRATION,
+  GITHUB_STARS_RETRY_DELAY,
+  isGitHubStarsCacheFresh,
+} from './IndexedDBService';
 
 describe('GitHubAPIService', () => {
+  it('caches GitHub star counts for 30 minutes', () => {
+    expect(CACHE_EXPIRATION.GITHUB_STARS).toBe(30 * 60 * 1000);
+    expect(GITHUB_STARS_RETRY_DELAY).toBe(30 * 60 * 1000);
+  });
+
+  it('considers a valid cached count fresh for less than 30 minutes', () => {
+    const now = 1_000_000;
+    const cache = { starCount: 42, fetchedAt: now - CACHE_EXPIRATION.GITHUB_STARS + 1, expiresAt: now };
+    expect(isGitHubStarsCacheFresh(cache, now)).toBe(true);
+    expect(isGitHubStarsCacheFresh({ ...cache, fetchedAt: now - CACHE_EXPIRATION.GITHUB_STARS }, now)).toBe(false);
+    expect(isGitHubStarsCacheFresh({ ...cache, fetchedAt: now + 1 }, now)).toBe(false);
+  });
+
   afterEach(() => {
     jest.restoreAllMocks();
   });

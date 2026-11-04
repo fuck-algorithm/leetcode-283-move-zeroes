@@ -12,6 +12,7 @@ interface ArrayLayout {
   elementWidth: number;
   elementHeight: number;
   spacing: number;
+  totalWidth: number;
   startX: number;
   startY: number;
 }
@@ -22,6 +23,8 @@ interface ArrowRendererProps {
   layout: ArrayLayout;
   isAnimating?: boolean;
   animationPhase?: 'prepare' | 'execute' | 'complete';
+  forwardLabel: string;
+  reverseLabel: string;
 }
 
 const ArrowRenderer: React.FC<ArrowRendererProps> = ({
@@ -30,6 +33,8 @@ const ArrowRenderer: React.FC<ArrowRendererProps> = ({
   layout,
   isAnimating = false,
   animationPhase = 'execute',
+  forwardLabel,
+  reverseLabel,
 }) => {
   const { elementWidth, elementHeight, spacing, startX, startY } = layout;
   const [animationProgress, setAnimationProgress] = useState(0);
@@ -74,6 +79,12 @@ const ArrowRenderer: React.FC<ArrowRendererProps> = ({
   };
 
   const arrowColor = getArrowColor();
+  const forwardBadgeWidth = Math.min(240, Math.max(112, forwardLabel.length * 6 + 20));
+  const reverseBadgeWidth = Math.min(240, Math.max(112, reverseLabel.length * 6 + 20));
+  const badgeX = (width: number) => Math.max(
+    startX + 4,
+    Math.min(midX - width / 2, startX + layout.totalWidth - width - 4)
+  );
 
   // 动画虚线偏移
   const dashOffset = isAnimating ? animationProgress : 0;
@@ -118,7 +129,6 @@ const ArrowRenderer: React.FC<ArrowRendererProps> = ({
         </filter>
       </defs>
 
-      {/* 上方箭头 */}
       <path
         d={topPath}
         fill="none"
@@ -132,6 +142,31 @@ const ArrowRenderer: React.FC<ArrowRendererProps> = ({
           transition: 'stroke 0.3s ease, stroke-width 0.3s ease',
         }}
       />
+      <g
+        className="arrow-explanation arrow-explanation-forward"
+        data-testid="arrow-explanation-forward"
+        role="img"
+        aria-label={forwardLabel}
+      >
+        <rect
+          x={badgeX(forwardBadgeWidth)}
+          y={startY - curveHeight - 42}
+          width={forwardBadgeWidth}
+          height={24}
+          rx={12}
+          fill="#fffdf7"
+          stroke={arrowColor}
+          strokeWidth={1.5}
+        />
+        <text
+          x={badgeX(forwardBadgeWidth) + forwardBadgeWidth / 2}
+          y={startY - curveHeight - 26}
+          textAnchor="middle"
+          fill="#263a32"
+          fontSize={12}
+          fontWeight={700}
+        >{forwardLabel}</text>
+      </g>
 
       {/* 下方箭头 */}
       <path
@@ -147,9 +182,34 @@ const ArrowRenderer: React.FC<ArrowRendererProps> = ({
           transition: 'stroke 0.3s ease, stroke-width 0.3s ease',
         }}
       />
+      <g
+        className="arrow-explanation arrow-explanation-reverse"
+        data-testid="arrow-explanation-reverse"
+        role="img"
+        aria-label={reverseLabel}
+      >
+        <rect
+          x={badgeX(reverseBadgeWidth)}
+          y={startY + elementHeight + curveHeight + 16}
+          width={reverseBadgeWidth}
+          height={24}
+          rx={12}
+          fill="#fffdf7"
+          stroke={arrowColor}
+          strokeWidth={1.5}
+        />
+        <text
+          x={badgeX(reverseBadgeWidth) + reverseBadgeWidth / 2}
+          y={startY + elementHeight + curveHeight + 32}
+          textAnchor="middle"
+          fill="#263a32"
+          fontSize={12}
+          fontWeight={700}
+        >{reverseLabel}</text>
+      </g>
 
-      {/* 交换标签 */}
-      <g>
+      {/* 阶段状态由箭头描边/动画表达，方向与对象由线上徽标说明。 */}
+      <g className="swap-phase-label" aria-hidden="true">
         <rect
           x={midX - 30}
           y={startY + elementHeight + curveHeight + 40}

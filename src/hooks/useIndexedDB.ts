@@ -15,6 +15,9 @@ import {
   savePlaybackSpeedPreference,
   getGitHubStarsWithFallback,
   saveGitHubStarsCache,
+  getGitHubStarsRetryAfter,
+  deferGitHubStarsRetry,
+  clearGitHubStarsRetry,
   clearExpiredCache,
 } from '../services/IndexedDBService';
 
@@ -154,6 +157,17 @@ export function usePlaybackSpeed(): UsePlaybackSpeedReturn {
 
 // ============ GitHub Stars Hook ============
 
+let pendingGitHubStarsRequest: Promise<number> | null = null;
+
+function fetchGitHubStarsOnce(fetchStars: () => Promise<number>): Promise<number> {
+  if (!pendingGitHubStarsRequest) {
+    pendingGitHubStarsRequest = fetchStars().finally(() => {
+      pendingGitHubStarsRequest = null;
+    });
+  }
+  return pendingGitHubStarsRequest;
+}
+
 interface UseGitHubStarsReturn {
   starCount: number;
   isLoading: boolean;
@@ -190,20 +204,26 @@ export function useGitHubStars(
         return;
       }
 
-      // 缓存过期或不存在，尝试获取新数据
+      const retryAfter = await getGitHubStarsRetryAfter();
+      if (retryAfter && retryAfter > Date.now()) {
+        setStarCount(cached.starCount);
+        setIsFromCache(cached.starCount > 0);
+        setIsLoading(false);
+        return;
+      }
+
+      // 缓存过期或不存在，且不在失败退避时间内，尝试获取新数据
       try {
-        const freshCount = await fetchStars();
+        const freshCount = await fetchGitHubStarsOnce(fetchStars);
         await saveGitHubStarsCache(freshCount);
+        await clearGitHubStarsRetry();
         setStarCount(freshCount);
         setIsFromCache(false);
       } catch (fetchError) {
-        // 获取失败，使用过期缓存或默认值
-        if (cached.starCount > 0) {
-          setStarCount(cached.starCount);
-          setIsFromCache(true);
-        } else {
-          setStarCount(0);
-        }
+        // 记录失败时间，半小时内不重复请求；保留旧值或默认值供降级展示
+        await deferGitHubStarsRetry();
+        setStarCount(cached.starCount);
+        setIsFromCache(cached.starCount > 0);
         setError('获取 Star 数失败，使用缓存数据');
       }
     } catch (err) {
@@ -221,12 +241,29 @@ export function useGitHubStars(
   const refresh = useCallback(async () => {
     try {
       setIsLoading(true);
-      const freshCount = await fetchStars();
+      const cached = await getGitHubStarsWithFallback();
+      if (cached.isFromCache) {
+        setStarCount(cached.starCount);
+        setIsFromCache(true);
+        setError(null);
+        return;
+      }
+
+      const retryAfter = await getGitHubStarsRetryAfter();
+      if (retryAfter && retryAfter > Date.now()) {
+        setStarCount(cached.starCount);
+        setIsFromCache(cached.starCount > 0);
+        return;
+      }
+
+      const freshCount = await fetchGitHubStarsOnce(fetchStars);
       await saveGitHubStarsCache(freshCount);
+      await clearGitHubStarsRetry();
       setStarCount(freshCount);
       setIsFromCache(false);
       setError(null);
     } catch (err) {
+      await deferGitHubStarsRetry();
       setError('刷新 Star 数失败');
     } finally {
       setIsLoading(false);

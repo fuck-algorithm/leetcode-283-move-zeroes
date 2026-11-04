@@ -23,7 +23,7 @@ const STORES = {
 
 // 缓存过期时间（毫秒）
 export const CACHE_EXPIRATION = {
-  GITHUB_STARS: 60 * 60 * 1000, // 1小时
+  GITHUB_STARS: 30 * 60 * 1000, // 30分钟
   DEFAULT: 24 * 60 * 60 * 1000, // 24小时
 } as const;
 
@@ -304,11 +304,42 @@ export async function saveGitHubStarsCache(starCount: number): Promise<void> {
 /**
  * 获取 GitHub Star（带降级逻辑）
  */
+const GITHUB_STARS_RETRY_KEY = 'github-stars-retry';
+export const GITHUB_STARS_RETRY_DELAY = CACHE_EXPIRATION.GITHUB_STARS;
+
+export function isGitHubStarsCacheFresh(value: GitHubCache | null, now = Date.now()): boolean {
+  return Boolean(
+    value &&
+    Number.isFinite(value.starCount) &&
+    value.starCount >= 0 &&
+    Number.isFinite(value.fetchedAt) &&
+    now >= value.fetchedAt &&
+    now - value.fetchedAt < CACHE_EXPIRATION.GITHUB_STARS
+  );
+}
+
+export async function getGitHubStarsRetryAfter(): Promise<number | null> {
+  const { value } = await getCacheItemWithExpired<{ retryAfter: number }>(GITHUB_STARS_RETRY_KEY);
+  return value && Number.isFinite(value.retryAfter) ? value.retryAfter : null;
+}
+
+export async function deferGitHubStarsRetry(): Promise<void> {
+  await setCacheItem(
+    GITHUB_STARS_RETRY_KEY,
+    { retryAfter: Date.now() + GITHUB_STARS_RETRY_DELAY },
+    GITHUB_STARS_RETRY_DELAY
+  );
+}
+
+export async function clearGitHubStarsRetry(): Promise<void> {
+  await removeItem(STORES.CACHE, GITHUB_STARS_RETRY_KEY);
+}
+
 export async function getGitHubStarsWithFallback(): Promise<{ starCount: number; isFromCache: boolean }> {
-  const { value, isExpired } = await getCacheItemWithExpired<GitHubCache>(GITHUB_STARS_CACHE_KEY);
-  
+  const { value } = await getCacheItemWithExpired<GitHubCache>(GITHUB_STARS_CACHE_KEY);
+
   if (value && Number.isFinite(value.starCount) && value.starCount >= 0) {
-    return { starCount: value.starCount, isFromCache: !isExpired };
+    return { starCount: value.starCount, isFromCache: isGitHubStarsCacheFresh(value) };
   }
 
   return { starCount: 0, isFromCache: false };
@@ -389,7 +420,11 @@ export const IndexedDBService = {
   getGitHubStarsCache,
   saveGitHubStarsCache,
   getGitHubStarsWithFallback,
-  
+  getGitHubStarsRetryAfter,
+  deferGitHubStarsRetry,
+  clearGitHubStarsRetry,
+  isGitHubStarsCacheFresh,
+
   // 清理
   clearExpiredCache,
   clearAllData,
