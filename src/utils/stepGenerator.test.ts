@@ -3,13 +3,15 @@ import { getCodeLineCount } from './codeLineMapper';
 import { SUPPORTED_LANGUAGES } from '../types';
 
 describe('generateSteps teaching metadata', () => {
-  it('provides semantic operations, narration, and valid code bindings', () => {
+  it('provides semantic operations, narration, anchors, and valid code bindings', () => {
     const steps = generateSteps([0, 1, 0, 3, 12]);
     expect(steps.length).toBeGreaterThan(1);
     steps.forEach((step) => {
       expect(step.operation).toBeTruthy();
       expect(step.narration.trim().length).toBeGreaterThan(8);
       expect(step.focusIndices.length).toBeLessThanOrEqual(2);
+      expect(step.anchorIds.length).toBeGreaterThan(0);
+      expect(new Set(step.anchorIds).size).toBe(step.anchorIds.length);
       SUPPORTED_LANGUAGES.forEach((language) => {
         step.codeLines[language].forEach((line) => {
           expect(line).toBeGreaterThanOrEqual(1);
@@ -24,7 +26,7 @@ describe('generateSteps teaching metadata', () => {
     expect(steps[0].description).toContain('slow');
     expect(steps[0].description).toContain('fast');
     expect(steps.find(step => step.action === 'compare' && step.fastPointer === 0)?.detailDescription)
-      .toContain('0');
+      .toContain('发现 0');
     expect(steps.find(step => step.action === 'swap_execute')?.detailDescription)
       .toContain('原来是 0');
     expect(steps.find(step => step.action === 'move_slow')?.detailDescription)

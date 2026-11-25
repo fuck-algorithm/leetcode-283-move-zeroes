@@ -27,29 +27,31 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({
   
   return (
     <div className="controls">
-      <button onClick={onReset} className="control-button reset">
+      <button onClick={onReset} className="control-button reset" aria-label={t('controls.reset')}>
         <span className="button-icon">↺</span> {t('controls.reset')} <span className="shortcut-hint">({t('controls.shortcuts.rKey')})</span>
       </button>
-      <button 
-        onClick={onStepBackward} 
+      <button
+        onClick={onStepBackward}
         disabled={!canStepBackward}
         className="control-button prev"
+        aria-label={t('controls.previous')}
       >
         <span className="button-icon">←</span> {t('controls.previous')} <span className="shortcut-hint">({t('controls.shortcuts.leftArrow')})</span>
       </button>
       {isPlaying ? (
-        <button onClick={onPause} className="control-button pause">
+        <button onClick={onPause} className="control-button pause" aria-label={t('controls.pause')}>
           <span className="button-icon">⏸</span> {t('controls.pause')} <span className="shortcut-hint">({t('controls.shortcuts.spaceKey')})</span>
         </button>
       ) : (
-        <button onClick={onPlay} className="control-button play">
+        <button onClick={onPlay} className="control-button play" aria-label={t('controls.start')}>
           <span className="button-icon">▶</span> {t('controls.start')} <span className="shortcut-hint">({t('controls.shortcuts.spaceKey')})</span>
         </button>
       )}
-      <button 
-        onClick={onStepForward} 
+      <button
+        onClick={onStepForward}
         disabled={!canStepForward}
         className="control-button next"
+        aria-label={t('controls.next')}
       >
         <span className="button-icon">→</span> {t('controls.next')} <span className="shortcut-hint">({t('controls.shortcuts.rightArrow')})</span>
       </button>

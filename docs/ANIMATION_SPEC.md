@@ -14,7 +14,7 @@
 | move | slow 前进，已处理前缀留痕 | slow++ | 为后续非零值留出写入位置 |
 | done | 所有非零值稳定在前缀，零位于末尾 | 函数完成 | 展示操作数和最终结果 |
 
-每步均绑定 `operation`、自然语言 `narration` 与最多两个 `focusIndices`；数组主结构的稳定 ID 为 `array-slot-{index}`，坐标使用 `startX + index * (elementWidth + spacing)`，除容器尺寸或输入长度变化外不随机重排。
+每步均绑定 `operation`、自然语言 `narration`、至少一个稳定 `anchorIds` 与最多两个 `focusIndices`；数组主结构的稳定 ID 为 `array-slot-{index}`，坐标使用 `startX + index * (elementWidth + spacing)`，除容器尺寸或输入长度变化外不随机重排。`compare` 帧最多一个比较焦点，`swap_execute` 帧突出两个交换对象，焦点离开后由已处理前缀持续标为 `visited`，最终帧全部转为 `done` 并显示勾号。
 
 ## 视觉语义
 
@@ -28,7 +28,7 @@
 
 D3 仅负责缩放和平移。初次显示、画布尺寸变化和输入数组长度变化时 fit；普通步进不重置镜头。数组槽位由 React keyed elements 复用，不由 D3 与 React 同时管理同一 SVG 子树。
 
-CSS 状态过渡约 220ms，指针/交换动画由现有播放器步骤节奏驱动；`prefers-reduced-motion: reduce` 时关闭 CSS 动画/过渡，D3 适配过渡时长设为 0，步骤数据、焦点、解说与图例仍立即更新。
+统一时长由 `src/utils/motion.ts` 的 `MOTION` token 提供：状态 240ms、移动 360ms、退场 180ms、箭头 420ms、镜头 fit 260ms；统一 `motionDuration` 按速度缩放并限制在停留时间的 55% 内。1x 播放停留 1000ms，3x 播放停留约 333ms。`prefers-reduced-motion: reduce` 时 CSS 动画/过渡关闭且 D3 镜头过渡时长为 0，步骤数据、焦点、解说与图例仍立即更新。跳步通过 React 的稳定 `array-slot-{index}` keyed 节点更新快照，不重建 SVG 树；镜头只在视口/输入长度变化时 fit。
 
 ## 限制
 

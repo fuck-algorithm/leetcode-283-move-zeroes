@@ -38,13 +38,15 @@ const ArrayRenderer: React.FC<ArrayRendererProps> = ({
         const isHighlighted = highlightIndices.includes(index);
         const isSwapping = SWAP_ACTIONS.includes(action) &&
           (isSlowPointer || isFastPointer) && slowPointer !== fastPointer;
-        const isComparing = ['compare', 'compare_zero', 'compare_nonzero'].includes(action) &&
-          isFastPointer;
+        const isComparing = (['compare', 'compare_zero', 'compare_nonzero'].includes(action) &&
+          isFastPointer) || (action === 'swap_execute' && isSwapping);
         const isProcessed = index < slowPointer && value !== 0;
-        const isCurrent = isHighlighted && !isSwapping && !isComparing;
+        const isCurrent = isHighlighted && !isSwapping && !isComparing && action !== 'complete';
+        const isDone = action === 'complete';
+        const isStablePrefix = isProcessed && !isComparing && !isCurrent && !isSwapping;
         const x = startX + index * (elementWidth + spacing);
-        const stateLabel = isComparing ? `fast 正在检查数字 ${value}` : isProcessed
-          ? '已放好的非零数字'
+        const stateLabel = isComparing ? `fast 正在检查数字 ${value}` : isDone
+          ? `${value}，整理完成` : isStablePrefix ? '已放好的非零数字'
           : value === 0 ? '0，等待移到末尾' : isCurrent ? '当前要放置的数字' : '还没检查';
 
         let colors = {
@@ -54,7 +56,9 @@ const ArrayRenderer: React.FC<ArrayRendererProps> = ({
           strokeWidth: 2,
           strokeDasharray: 'none',
         };
-        if (isProcessed) {
+        if (isDone) {
+          colors = { fill: '#18765a', stroke: '#0f4f3d', text: '#ffffff', strokeWidth: 3, strokeDasharray: 'none' };
+        } else if (isStablePrefix) {
           colors = { fill: '#a9d6c3', stroke: '#4f8d77', text: '#19332a', strokeWidth: 2, strokeDasharray: 'none' };
         } else if (isCurrent) {
           colors = { fill: '#d3e9df', stroke: '#247d61', text: '#19332a', strokeWidth: 2, strokeDasharray: 'none' };
@@ -70,8 +74,8 @@ const ArrayRenderer: React.FC<ArrayRendererProps> = ({
           };
         }
 
-        const status = isComparing ? 'compare' : isProcessed ? 'visited' :
-          isCurrent ? 'current' : value === 0 ? 'idle' : 'normal';
+        const status = isComparing ? 'compare' : isDone ? 'done' : isStablePrefix ? 'visited' :
+          isCurrent ? 'current' : 'idle';
 
         return (
           <g
@@ -113,7 +117,7 @@ const ArrayRenderer: React.FC<ArrayRendererProps> = ({
             >
               [{index}]
             </text>
-            {isProcessed && (
+            {(isStablePrefix || isDone) && (
               <text
                 x={elementWidth / 2}
                 y={-7}
