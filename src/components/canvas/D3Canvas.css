@@ -23,6 +23,13 @@
   background: #fff;
 }
 
+.array-element rect {
+  transition:
+    fill var(--motion-state-duration, 240ms) linear,
+    stroke var(--motion-state-duration, 240ms) linear,
+    stroke-width var(--motion-state-duration, 240ms) linear;
+}
+
 .canvas-step-meta {
   display: flex;
   align-items: center;
@@ -129,6 +136,7 @@
 .legend-fast { background: #b37b19; }
 .legend-compare { background: #f5d98e; }
 .legend-processed { background: #a9d6c3; }
+.legend-done { background: #18765a; }
 .legend-zero { background: #dce3e0; }
 
 .canvas-metrics span {

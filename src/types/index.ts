@@ -71,12 +71,14 @@ export interface AnnotationConfig {
 }
 
 export type StepOperation = 'init' | 'read' | 'compare' | 'swap' | 'move' | 'done';
+export type NodeStatus = 'idle' | 'current' | 'compare' | 'visited' | 'done';
 
 export interface AlgorithmStep {
   id: number;
   operation: StepOperation;
   narration: string;
   focusIndices: number[];
+  anchorIds: string[];
   array: number[];
   slowPointer: number;
   fastPointer: number;

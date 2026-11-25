@@ -5,6 +5,7 @@ import ArrayRenderer from './ArrayRenderer';
 import PointerRenderer from './PointerRenderer';
 import ArrowRenderer from './ArrowRenderer';
 import AnnotationRenderer from './AnnotationRenderer';
+import { motionDuration, MOTION } from '../../utils/motion';
 import './D3Canvas.css';
 
 const ACTION_LABELS: Record<AlgorithmStep['operation'], string> = {
@@ -19,6 +20,7 @@ const ACTION_LABELS: Record<AlgorithmStep['operation'], string> = {
 const D3Canvas: React.FC<D3CanvasProps> = ({ step, width, height, onZoom }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [transform, setTransform] = useState<d3.ZoomTransform>(d3.zoomIdentity);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const lastArrayLengthRef = useRef(0);
   const lastCanvasSizeRef = useRef({ width: 0, height: 0 });
   const arrayLength = step?.array.length ?? 0;
@@ -42,6 +44,14 @@ const D3Canvas: React.FC<D3CanvasProps> = ({ step, width, height, onZoom }) => {
       totalWidth,
     };
   }, [arrayLength, width, height]);
+
+  useEffect(() => {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updatePreference = () => setPrefersReducedMotion(query.matches);
+    updatePreference();
+    query.addEventListener?.('change', updatePreference);
+    return () => query.removeEventListener?.('change', updatePreference);
+  }, []);
 
   useEffect(() => {
     if (!svgRef.current) return;
@@ -69,7 +79,6 @@ const D3Canvas: React.FC<D3CanvasProps> = ({ step, width, height, onZoom }) => {
 
     const svg = d3.select(svgRef.current);
     const zoom = d3.zoom<SVGSVGElement, unknown>();
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const scaleX = (width - 40) / layout.totalWidth;
     const scaleY = (height - 120) / layout.elementHeight;
     const scale = Math.max(0.5, Math.min(scaleX, scaleY, 1.5));
@@ -80,11 +89,11 @@ const D3Canvas: React.FC<D3CanvasProps> = ({ step, width, height, onZoom }) => {
 
     svg.interrupt();
     svg.transition()
-      .duration(reducedMotion ? 0 : 260)
+      .duration(motionDuration(MOTION.cameraFitMs, 1, prefersReducedMotion))
       .call(zoom.transform as any, fitted);
     lastArrayLengthRef.current = arrayLength;
     lastCanvasSizeRef.current = { width, height };
-  }, [arrayLength, width, height, layout, step]);
+  }, [arrayLength, width, height, layout, step, prefersReducedMotion]);
 
   if (!step || !layout) {
     return (
@@ -105,16 +114,20 @@ const D3Canvas: React.FC<D3CanvasProps> = ({ step, width, height, onZoom }) => {
     .filter(value => value !== 0).length;
 
   return (
-    <div className="d3-canvas-container">
+    <div
+      className="d3-canvas-container"
+      style={{ '--motion-state-duration': `${MOTION.stateMs}ms` } as React.CSSProperties}
+    >
       <div className="canvas-teaching-header" aria-live="polite">
         <div className="canvas-step-meta">
           <span className="canvas-step-count">步骤 {step.id + 1}</span>
           <span
             className={`operation-badge operation-${step.operation}`}
+            data-testid="operation-badge"
             data-operation={step.operation}
           >{ACTION_LABELS[step.operation]}</span>
         </div>
-        <p className="step-narration">{step.narration}</p>
+        <p className="step-narration" data-testid="step-narration">{step.narration}</p>
       </div>
       <svg
         ref={svgRef}
@@ -163,6 +176,7 @@ const D3Canvas: React.FC<D3CanvasProps> = ({ step, width, height, onZoom }) => {
           <span><i className="legend-dot legend-fast" />fast 当前检查位置</span>
           <span><i className="legend-swatch legend-compare" />当前数字</span>
           <span><i className="legend-swatch legend-processed" />已放好</span>
+          <span><i className="legend-swatch legend-done" />结果 ✓</span>
           <span><i className="legend-swatch legend-zero" />0</span>
         </div>
         <div className="canvas-metrics" aria-label="算法指标">

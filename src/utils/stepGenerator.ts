@@ -61,7 +61,7 @@ export function generateSteps(inputArray: number[]): AlgorithmStep[] {
       action: 'compare',
       description: `查找位置 fast 正在检查第 ${fast + 1} 格的数字 ${value}。`,
       detailDescription: value === 0
-        ? 'fast 当前看到 0：它不能放进非零结果；先留在原格，继续往右找。'
+        ? `fast 检查第 ${fast + 1} 格发现 0：它不能放进非零结果，先留在原格并继续向右。`
         : slow === fast
           ? `fast 找到非零数字 ${value}。前面没有 0 留下的空格，它本来就在第 ${slow + 1} 格，所以不用挪动。`
           : `fast 找到非零数字 ${value}。第 ${slow + 1} 格是前面 0 留下的空格，把 ${value} 放进去；被换到后面的 0 最后会排在末尾。`,
@@ -115,7 +115,7 @@ export function generateSteps(inputArray: number[]): AlgorithmStep[] {
         action: 'move_slow',
         description: `fast 找到的 ${value} 已放到前面。slow 右移到第 ${slow + 1} 格，准备放下一个非零数字。`,
         detailDescription:
-          'slow 是下一个可以放非零数字的位置；它左边的数字已按原顺序放好。',
+          `第 ${fast + 1} 格的非零数字 ${value} 已处理；slow 前进到第 ${slow + 1} 格，前缀仍按原顺序放好。`,
         codeLines: getCodeLineBinding('move_slow'),
         variables: { slow, fast, nums: [...nums], swapCount },
         annotations: [{
@@ -182,6 +182,7 @@ function createStep(params: StepParams): AlgorithmStep {
     operation: operationByAction[params.action],
     narration: params.detailDescription || params.description,
     focusIndices: (params.highlightIndices || []).slice(0, 2),
+    anchorIds: [`move-zeroes:${params.action}`],
   };
 }
 
